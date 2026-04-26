@@ -1,5 +1,5 @@
 /* 
-    Generation Registration Link
+    Generate Registration Link
     Record sending information
     3hr expiration
     !used 
@@ -37,7 +37,7 @@ const registrationTokenSchema = new mongoose.Schema(
         },
         used: {
             type: Boolean,
-            required: false,
+            default: false,
         },
         status: {
             type: String,
