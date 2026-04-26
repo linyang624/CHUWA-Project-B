@@ -14,31 +14,38 @@ const registrationTokenSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+
         firstName: {
             type: String,
             required: true,
         },
+
         lastName: {
             type: String,
             required: true,
         },
+
         token: {
             type: String,
             required: true,
             unique: true,
         },
+
         registrationLink: {
             type: String,
             required: true,
         },
+
         expiresAt: {
             type: Date,
             required: true,
         },
+
         used: {
             type: Boolean,
             default: false,
         },
+        
         status: {
             type: String,
             enum: ["sent", 'submitted'],

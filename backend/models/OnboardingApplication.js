@@ -40,26 +40,32 @@ const applicationSchema = new mongoose.Schema (
             required: true,
             unique: true,
         },
+
         firstName: {
             type: String,
             required: true,
         },
+
         lastName: {
             type: String,
             required: true,
         },
+
         middleName: {
             type: String,
             default: "",
         },
+
         preferredName: {
             type: String,
             default: "",
         },
+
         profilePicture: {
             type: fileSchema,
             default: null,
         },
+
         address: {
             building: {
                 type: String,
@@ -82,40 +88,49 @@ const applicationSchema = new mongoose.Schema (
                 required: true,
             },
         },
+        
         cellPhone: {
             type: String,
             required: true,
         },
+
         workPhone: {
             type: String,
             default: "",
         },
+
         email: {
             type: String,
             required: true,
         },
+
         ssn: {
             type: String,
             required: true,
         },
+
         dateOfBirth: {
             type: Date,
             required: true,
         },
+
         gender: {
             type: String,
             required: true,
             enum: ["male", "female", "i_do_not_wish_to_answer"],
         },
+        
         isPermanentResidentOrCitizen: {
             type: Boolean,
             required: true,
         },
+
         residentType: {
             type: String,
             enum: ["green_card", "citizen", ""],
             default: "",
         },
+
         workAuthorization: {
             visaTitle: {
                 type: String,
@@ -140,10 +155,12 @@ const applicationSchema = new mongoose.Schema (
                 default: null,
             },
         },
+
         driverLicense: {
             type: fileSchema,
             default: null,
         },
+        
         reference: {
             firstName: {
                 type: String,
@@ -170,6 +187,7 @@ const applicationSchema = new mongoose.Schema (
                 required: true,
             },
         },
+
         emergencyContacts: [
             {
                 firstName: {
@@ -198,11 +216,13 @@ const applicationSchema = new mongoose.Schema (
                 },
             },
         ],
+
         status: {
             type: String,
             enum: ["pending", "approved", "rejected"],
             default: "pending",
         },
+        
         feedback: {
             type: String,
             default: "",

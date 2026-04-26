@@ -12,6 +12,7 @@ const documentSchema = new mongoose.Schema (
             ref: 'User',
             required: true,
         },
+
         documentType: {
             type: String,
             required: true,
@@ -22,27 +23,33 @@ const documentSchema = new mongoose.Schema (
                 'i_20',
             ],
         },
+
         originalName: {
             type: String,
             required: true,
         },
+
         fileName: {
             type: String,
             required: true,
         },
+        
         filePath: {
             type: String,
             required: true,
         },
+
         mimeType:{
             type: String,
             required: true,
         },
+
         status: {
             type: String,
             enum: ['pending', 'approved', 'rejected'],
             default: 'pending',
         },
+        
         feedback: {
             type: String,
             default: '',
