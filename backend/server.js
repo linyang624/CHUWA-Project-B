@@ -18,6 +18,8 @@ app.use(express.json());
 
 // Routes will be added here later
 app.use("/api/hr", hrRoutes);
+app.use("/api/visa", visaRoutes);
+
 
 // Error handler must be after all routes
 app.use(errorHandler);
