@@ -6,6 +6,8 @@ import connectDB from './config/db.js';
 
 import errorHandler from './middlewares/errorHandler.js';
 import hrRoutes from "./routes/hrRoutes.js";
+import visaRoutes from "./routes/visaRoutes.js";
+import documentRoutes from "./routes/documentRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -16,10 +18,10 @@ app.use(cors());
 app.use(express.json());
 
 
-// Routes will be added here later
+// Routes 
 app.use("/api/hr", hrRoutes);
 app.use("/api/visa", visaRoutes);
-app.use("/api/document", documentRoutes);
+app.use("/api/documents", documentRoutes);
 
 // Error handler must be after all routes
 app.use(errorHandler);

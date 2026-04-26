@@ -4,6 +4,8 @@ import { protect } from "../middlewares/authMiddleware.js";
 import { authorizeRoles } from "../middlewares/roleMiddleware.js";
 
 import {
+    generateRegistrationToken,
+    getRegistrationTokenHistory,
     getPendingApplications,
     getRejectedApplications,
     getApprovedApplications,
@@ -12,9 +14,29 @@ import {
     rejectApplication,
     getEmployees,
     getEmployeeById,
+    getVisaInProgress,
+    getAllVisaStatuses,
+    approveVisaDocument,
+    rejectVisaDocument,
+    sendVisaNotification,
 } from "../controllers/hrController.js";
 
 const router = express.Router();
+
+// HR registration token management
+router.post(
+    "/registration-token",
+    protect,
+    authorizeRoles("hr"),
+    generateRegistrationToken
+);
+
+router.get(
+    "/registration-tokens",
+    protect,
+    authorizeRoles("hr"),
+    getRegistrationTokenHistory
+);
 
 // HR onboarding application review
 router.get(
@@ -72,6 +94,42 @@ router.get(
     protect,
     authorizeRoles("hr"),
     getEmployeeById
+);
+
+// HR visa status management
+router.get(
+    "/visa/in-progress",
+    protect,
+    authorizeRoles("hr"),
+    getVisaInProgress
+);
+
+router.get(
+    "/visa/all",
+    protect,
+    authorizeRoles("hr"),
+    getAllVisaStatuses
+);
+
+router.put(
+    "/visa/:documentId/approve",
+    protect,
+    authorizeRoles("hr"),
+    approveVisaDocument
+);
+
+router.put(
+    "/visa/:documentId/reject",
+    protect,
+    authorizeRoles("hr"),
+    rejectVisaDocument
+);
+
+router.post(
+    "/visa/:employeeId/notify",
+    protect,
+    authorizeRoles("hr"),
+    sendVisaNotification
 );
 
 export default router;
