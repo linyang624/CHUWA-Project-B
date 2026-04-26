@@ -45,11 +45,10 @@ const registrationTokenSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
-        
-        status: {
-            type: String,
-            enum: ["sent", 'submitted'],
-            default: "sent",
+
+        onboardingSubmitted: {
+            type: Boolean,
+            default: false,
         },
     },
     {

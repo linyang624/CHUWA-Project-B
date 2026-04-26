@@ -1,20 +1,93 @@
+import crypto from "crypto";
+
 import OnboardingApplication from "../models/OnboardingApplication.js";
 import VisaStatus from "../models/VisaStatus.js";
+import RegistrationToken from "../models/RegistrationToken.js";
 import { NotFoundError, ValidationError } from "../utils/error.js";
 
+
+// Generate registration token and registration link for a new employee
 export const generateRegistrationToken = async (req, res, next) => {
-    res.json({ message: "Generate registration token" });
+    try {
+        const { email, firstName, lastName } = req.body;
+
+        if (!email || !firstName || !lastName) {
+            throw new ValidationError("Email, first name, and last name are required");
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailRegex.test(email)) {
+            throw new ValidationError("Invalid email format");
+        }
+
+        const normalizedEmail = email.toLowerCase();
+
+        const token = crypto.randomBytes(32).toString("hex");
+
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        const registrationLink = `${frontendUrl}/register/${token}`;
+
+        const expiresAt = new Date(Date.now() + 3 * 60 * 60 * 1000);
+
+        const registrationToken = await RegistrationToken.create({
+            email: normalizedEmail,
+            firstName,
+            lastName,
+            token,
+            registrationLink,
+            expiresAt,
+            used: false,
+            onboardingSubmitted: false,
+        });
+
+        res.status(201).json({
+            message: "Registration token generated successfully",
+            registrationToken,
+        });
+    } 
+    catch (error) {
+        next(error);
+    }
 };
 
+// Get registration token history for HR
 export const getRegistrationTokenHistory = async (req, res, next) => {
-    res.json({ message: "Get registration token history" });
+    try {
+        const tokens = await RegistrationToken.find()
+            .sort({ createdAt: -1 });
+
+        const tokenHistory = tokens.map((tokenRecord) => {
+            const isExpired = tokenRecord.expiresAt < new Date();
+
+            return {
+                _id: tokenRecord._id,
+                email: tokenRecord.email,
+                firstName: tokenRecord.firstName,
+                lastName: tokenRecord.lastName,
+                registrationLink: tokenRecord.registrationLink,
+                expiresAt: tokenRecord.expiresAt,
+                used: tokenRecord.used,
+                onboardingSubmitted: tokenRecord.onboardingSubmitted,
+                linkStatus: tokenRecord.used ? "used" : isExpired ? "expired" : "active",
+            };
+        });
+
+        res.status(200).json({
+            count: tokenHistory.length,
+            tokens: tokenHistory,
+        });
+    } 
+    catch (error) {
+        next(error);
+    }
 };
 
 //HELPER: Get onboarding applications by status
 const getApplicationsByStatus = async (status, res, next) => {
     try {
         const applications = await OnboardingApplication.find({ status })
-            .populate("user", "username email role")
+            .populate("user", "username email")
             .sort({ createdAt: -1 })
 
         res.status(200).json({
@@ -43,7 +116,7 @@ export const getApprovedApplications = async (req, res, next) => {
 export const getApplicationById = async (req, res, next) => {
     try {
         const application = await OnboardingApplication.findById(req.params.id)
-            .populate("user", "username email role")
+            .populate("user", "username email")
             .populate("workAuthorization.optReceipt");
 
         if (!application) {
@@ -131,12 +204,60 @@ export const rejectApplication = async (req, res, next) => {
     }
 };
 
+// Get employee profile summaries for HR
 export const getEmployees = async (req, res, next) => {
-    res.json({ message: "Get employees" });
+    try {
+        const { search } = req.query;
+
+        const filter = {
+            status: "approved",
+        };
+
+        if (search) {
+            filter.$or = [
+                { firstName: { $regex: search, $options: "i" } },
+                { lastName: { $regex: search, $options: "i" } },
+                { preferredName: { $regex: search, $options: "i" } },
+            ];
+        }
+
+        const employees = await OnboardingApplication.find(filter)
+            .populate("user", "username email")
+            .sort({ lastName: 1, firstName: 1 });
+
+        res.status(200).json({
+            count: employees.length,
+            employees,
+        });
+    } 
+    catch (error) {
+        next(error);
+    }
 };
 
+// Get one employee's full profile by employee user id
 export const getEmployeeById = async (req, res, next) => {
-    res.json({ message: "Get employee by id" });
+    try {
+        const { employeeId } = req.params;
+
+        const employeeProfile = await OnboardingApplication.findOne({
+            user: employeeId,
+            status: "approved",
+        })
+            .populate("user", "username email")
+            .populate("workAuthorization.optReceipt");
+
+        if (!employeeProfile) {
+            throw new NotFoundError("Employee profile not found");
+        }
+
+        res.status(200).json({
+            employee: employeeProfile,
+        });
+    } 
+    catch (error) {
+        next(error);
+    }
 };
 
 export const getVisaInProgress = async (req, res, next) => {
