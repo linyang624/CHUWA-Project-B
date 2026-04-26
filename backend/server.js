@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 
 import errorHandler from './middlewares/errorHandler.js';
+import hrRoutes from "./routes/hrRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -16,6 +17,7 @@ app.use(express.json());
 
 
 // Routes will be added here later
+app.use("/api/hr", hrRoutes);
 
 // Error handler must be after all routes
 app.use(errorHandler);
