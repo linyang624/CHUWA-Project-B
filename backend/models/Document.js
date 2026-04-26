@@ -53,6 +53,8 @@ const documentSchema = new mongoose.Schema (
     }
 );
 
+documentSchema.index({ user: 1, documentType: 1 }, { unique: true });
+
 const Document = mongoose.model('Document', documentSchema);
 
 export default Document;
