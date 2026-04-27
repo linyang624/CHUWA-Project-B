@@ -117,6 +117,7 @@ export const getApplicationById = async (req, res, next) => {
     try {
         const application = await OnboardingApplication.findById(req.params.id)
             .populate("user", "username email")
+            .populate("driverLicense")
             .populate("workAuthorization.optReceipt");
 
         if (!application) {
@@ -245,6 +246,7 @@ export const getEmployeeById = async (req, res, next) => {
             status: "approved",
         })
             .populate("user", "username email")
+            .populate("driverLicense")
             .populate("workAuthorization.optReceipt");
 
         if (!employeeProfile) {

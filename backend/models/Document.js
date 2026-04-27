@@ -17,6 +17,7 @@ const documentSchema = new mongoose.Schema (
             type: String,
             required: true,
             enum: [
+                'driver_license',
                 'opt_receipt',
                 'opt_ead',
                 'i_983',
@@ -49,7 +50,7 @@ const documentSchema = new mongoose.Schema (
             enum: ['pending', 'approved', 'rejected'],
             default: 'pending',
         },
-        
+
         feedback: {
             type: String,
             default: '',

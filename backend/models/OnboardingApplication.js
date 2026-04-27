@@ -157,7 +157,8 @@ const applicationSchema = new mongoose.Schema (
         },
 
         driverLicense: {
-            type: fileSchema,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Document",
             default: null,
         },
         
@@ -222,7 +223,7 @@ const applicationSchema = new mongoose.Schema (
             enum: ["pending", "approved", "rejected"],
             default: "pending",
         },
-        
+
         feedback: {
             type: String,
             default: "",
