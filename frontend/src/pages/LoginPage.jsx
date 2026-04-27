@@ -18,10 +18,10 @@ export default function LoginPage() {
       id: "employee-1",
       username,
       role: "employee",
-      onboardingStatus: // "never_submitted",
+      onboardingStatus: "never_submitted",
       // "pending",
       // "rejected"
-       "approved",
+      // "approved",
     };
 
     dispatch(

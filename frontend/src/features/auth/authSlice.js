@@ -5,16 +5,16 @@ const savedUser = JSON.parse(localStorage.getItem("user")) || null;
 const savedToken = localStorage.getItem("token") || null;
 
 const initialState = {
-  user: savedUser,
-  token: savedToken,
-  isAuthenticated: !!savedToken, // !! change the value to boolean
+    user: savedUser,
+    token: savedToken,
+    isAuthenticated: !!savedToken, // !! change the value to boolean
 };
 
 
 const authSlice = createSlice({
-  name: "auth",
-  initialState,
-  reducers: {
+    name: "auth",
+    initialState,
+    reducers: {
     // store user, token, isAuthenticated in Redux
     loginSuccess: (state, action) => {
       state.user = action.payload.user;
@@ -33,8 +33,13 @@ const authSlice = createSlice({
       localStorage.removeItem("user");
       localStorage.removeItem("token");
     },
+    updateOnboardingStatus: (state, action) => {
+      state.user.onboardingStatus = action.payload;
+      // Keep localStorage in sync, so refresh still shows the correct status.
+      localStorage.setItem("user", JSON.stringify(state.user));
+    },
   },
 });
 
-export const { loginSuccess, logout } = authSlice.actions;
+export const { loginSuccess, logout, updateOnboardingStatus  } = authSlice.actions;
 export default authSlice.reducer;
