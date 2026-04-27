@@ -1,4 +1,5 @@
 import OnboardingApplication from "../models/OnboardingApplication.js";
+import RegistrationToken from "../models/RegistrationToken.js";
 import Document from "../models/Document.js";
 
 const parseJSONField = (value) => {
@@ -56,10 +57,22 @@ export const getMyApplication = async (req, res, next) => {
   try {
     const app = await OnboardingApplication.findOne({
       user: req.user._id,
-    }).populate("driverLicense")
+    })
+      .populate("driverLicense")
       .populate("workAuthorization.optReceipt");
 
-    res.json(app);
+    // getMyApplication return a clear statues: "not_submitted" / "pending / rejected / approved"
+    if (!app) {
+      return res.status(200).json({
+        status: "not_submitted",
+        application: null,
+      });
+    }
+
+    res.status(200).json({
+      status: app.status,
+      application: app,
+    });
   } catch (error) {
     next(error);
   }
@@ -140,6 +153,20 @@ const saveApplication = async (req, res, next) => {
       Object.assign(app, applicationData);
       await app.save();
     }
+
+    // After submit onboarding, update registration-yoken record
+    await RegistrationToken.findOneAndUpdate(
+      {
+        email: req.user.email,
+        used: true,
+      },
+      {
+        onboardingSubmitted: true,
+      },
+      {
+        sort: { createdAt: -1 },
+      }
+    );
 
     res.json(app);
   } catch (error) {
