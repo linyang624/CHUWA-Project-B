@@ -5,6 +5,7 @@ import { updateOnboardingStatus } from "../features/auth/authSlice";
 import { submitOnboardingApplication } from "../api/onboardingApi";
 import { getMyApplication } from "../api/onboardingApi";
 
+
 import { useEffect } from "react";
 
 export default function OnboardingApplicationPage() {

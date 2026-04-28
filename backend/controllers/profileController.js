@@ -1,21 +1,75 @@
-import User from "../models/User.js";
+import OnboardingApplication from "../models/OnboardingApplication.js";
 
 // GET /api/profile/me
-export const getProfile = async (req, res) => {
-    res.json(req.user);
-};
+export const getMyProfile = async (req, res, next) => {
+  try {
+    const profile = await OnboardingApplication.findOne({
+      user: req.user._id,
+      status: "approved",
+    });
 
-// PUT /api/profile/me
-export const updateProfile = async (req, res) => {
-    const user = await User.findById(req.user._id);
-
-    if (!user) {
-        return res.status(404).json({ message: "User not found" });
+    if (!profile) {
+      return res.status(404).json({
+        message: "Approved profile not found",
+      });
     }
 
-    user.email = req.body.email || user.email;
+    res.json(profile);
+  } catch (error) {
+    next(error);
+  }
+};
 
-    await user.save();
+// PUT /api/profile/me/section/:section
+export const updateProfileSection = async (req, res, next) => {
+  try {
+    const { section } = req.params;
 
-    res.json(user);
+    const profile = await OnboardingApplication.findOne({
+      user: req.user._id,
+      status: "approved",
+    });
+
+    if (!profile) {
+      return res.status(404).json({
+        message: "Approved profile not found",
+      });
+    }
+
+    if (section === "name") {
+      profile.firstName = req.body.firstName ?? profile.firstName;
+      profile.lastName = req.body.lastName ?? profile.lastName;
+      profile.middleName = req.body.middleName ?? profile.middleName;
+      profile.preferredName = req.body.preferredName ?? profile.preferredName;
+      profile.gender = req.body.gender ?? profile.gender;
+    }
+
+    if (section === "address") {
+      profile.address = {
+        ...profile.address,
+        ...req.body.address,
+      };
+    }
+
+    if (section === "contact") {
+      profile.cellPhone = req.body.cellPhone ?? profile.cellPhone;
+      profile.workPhone = req.body.workPhone ?? profile.workPhone;
+    }
+
+    if (section === "employment") {
+      profile.workAuthorization = {
+        ...profile.workAuthorization,
+        ...req.body.workAuthorization,
+      };
+    }
+
+    if (section === "emergency") {
+      profile.emergencyContacts = req.body.emergencyContacts;
+    }
+
+    await profile.save();
+    res.json(profile);
+  } catch (error) {
+    next(error);
+  }
 };

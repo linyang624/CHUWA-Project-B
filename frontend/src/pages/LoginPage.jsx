@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginSuccess } from "../features/auth/authSlice";
+import { loginUser } from "../api/authApi";
 
 export default function LoginPage() {
   const dispatch = useDispatch();
@@ -9,34 +10,43 @@ export default function LoginPage() {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleLogin = (event) => {
-    event.preventDefault(); // prevent the browser refresh automatically
-    
-    // mock
-    const fakeUser = {
-      id: "employee-1",
-      username,
-      role: "employee",
-      onboardingStatus: "never_submitted",
-      // "pending",
-      // "rejected"
-      // "approved",
-    };
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    setError("");
 
-    dispatch(
-      loginSuccess({
-        user: fakeUser,
-        token: "fake-employee-token",
-      })
-    );
+    try {
+      const data = await loginUser({ username, password });
 
-    navigate("/onboarding");
+      dispatch(
+        loginSuccess({
+          user: {
+            id: data.id,
+            username: data.username,
+            email: data.email,
+            role: data.role,
+            onboardingStatus: data.onboardingStatus || "never_submitted",
+          },
+          token: data.token,
+        })
+      );
+
+      if (data.onboardingStatus === "approved") {
+        navigate("/personal-info");
+      } else {
+        navigate("/onboarding");
+      }
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
     <div>
       <h1>Login Page</h1>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
       <form onSubmit={handleLogin}>
         <div>

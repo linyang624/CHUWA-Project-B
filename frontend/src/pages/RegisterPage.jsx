@@ -1,46 +1,66 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import {
+  verifyRegistrationToken,
+  registerWithToken,
+} from "../api/registrationApi";
 
 export default function RegisterPage() {
   const { token } = useParams();
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("new.employee@example.com");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const isValidToken = token === "test-token";
+  useEffect(() => {
+    const checkToken = async () => {
+      try {
+        const data = await verifyRegistrationToken(token);
+        setEmail(data.email);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleRegister = (event) => {
+    checkToken();
+  }, [token]);
+
+  const handleRegister = async (event) => {
     event.preventDefault();
+    setError("");
 
-    if (!isValidToken) {
-      setError("Invalid or expired registration token.");
-      return;
-    }
-
-    if (!username || !email || !password) {
+    if (!username || !password) {
       setError("Please fill in all required fields.");
       return;
     }
 
-    // TODO: Replace this fake registration logic with backend API call.
-    console.log("Registered user:", {
-      username,
-      email,
-      password,
-      token,
-    });
+    try {
+      await registerWithToken(token, {
+        username,
+        password,
+      });
 
-    navigate("/login");
+      navigate("/login");
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
-  if (!isValidToken) {
+  if (loading) {
+    return <p>Checking registration token...</p>;
+  }
+
+  if (error && !email) {
     return (
       <div>
         <h1>Registration Page</h1>
-        <p style={{ color: "red" }}>Invalid or expired registration token.</p>
+        <p style={{ color: "red" }}>{error}</p>
       </div>
     );
   }
