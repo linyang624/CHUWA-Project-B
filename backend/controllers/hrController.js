@@ -3,6 +3,7 @@ import crypto from "crypto";
 import OnboardingApplication from "../models/OnboardingApplication.js";
 import VisaStatus from "../models/VisaStatus.js";
 import RegistrationToken from "../models/RegistrationToken.js";
+import Document from "../models/Document.js";
 import { NotFoundError, ValidationError } from "../utils/error.js";
 
 
@@ -117,6 +118,7 @@ export const getApplicationById = async (req, res, next) => {
     try {
         const application = await OnboardingApplication.findById(req.params.id)
             .populate("user", "username email")
+            .populate("profilePicture")
             .populate("driverLicense")
             .populate("workAuthorization.optReceipt");
 
@@ -246,6 +248,7 @@ export const getEmployeeById = async (req, res, next) => {
             status: "approved",
         })
             .populate("user", "username email")
+            .populate("profilePicture")
             .populate("driverLicense")
             .populate("workAuthorization.optReceipt");
 

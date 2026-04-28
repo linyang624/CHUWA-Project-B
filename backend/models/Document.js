@@ -17,6 +17,7 @@ const documentSchema = new mongoose.Schema (
             type: String,
             required: true,
             enum: [
+                'profile_picture',
                 'driver_license',
                 'opt_receipt',
                 'opt_ead',

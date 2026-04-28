@@ -1,6 +1,44 @@
 import OnboardingApplication from "../models/OnboardingApplication.js";
 import RegistrationToken from "../models/RegistrationToken.js";
 import Document from "../models/Document.js";
+import { ValidationError } from "../utils/error.js";
+
+// validation help function for reference & emergency
+const validateApplicationInput = ({
+  reference,
+  emergencyContacts,
+}) => {
+  const hasReference =
+    reference &&
+    (
+      reference.firstName ||
+      reference.lastName ||
+      reference.middleName ||
+      reference.phone ||
+      reference.email ||
+      reference.relationship
+    );
+
+  if (hasReference) {
+    if (!reference.firstName || !reference.lastName || !reference.relationship) {
+      throw new ValidationError(
+        "Reference first name, last name, and relationship are required if reference is provided"
+      );
+    }
+  }
+
+  if (!Array.isArray(emergencyContacts) || emergencyContacts.length < 1) {
+    throw new ValidationError("At least one emergency contact is required");
+  }
+
+  for (const contact of emergencyContacts) {
+    if (!contact.firstName || !contact.lastName || !contact.relationship) {
+      throw new ValidationError(
+        "Emergency contact first name, last name, and relationship are required"
+      );
+    }
+  }
+};
 
 const parseJSONField = (value) => {
   if (!value) return undefined;
@@ -11,17 +49,6 @@ const parseJSONField = (value) => {
   } catch {
     return value;
   }
-};
-
-const buildFileInfo = (file) => {
-  if (!file) return null;
-
-  return {
-    originalName: file.originalname,
-    fileName: file.filename,
-    filePath: file.path,
-    mimeType: file.mimetype,
-  };
 };
 
 const createOrUpdateDocument = async (userId, documentType, file) => {
@@ -58,10 +85,11 @@ export const getMyApplication = async (req, res, next) => {
     const app = await OnboardingApplication.findOne({
       user: req.user._id,
     })
+      .populate("profilePicture")
       .populate("driverLicense")
       .populate("workAuthorization.optReceipt");
 
-    // getMyApplication return a clear statues: "not_submitted" / "pending / rejected / approved"
+    // getMyApplication return a clear status: "not_submitted" / "pending / rejected / approved"
     if (!app) {
       return res.status(200).json({
         status: "not_submitted",
@@ -100,11 +128,24 @@ const saveApplication = async (req, res, next) => {
     const reference = parseJSONField(req.body.reference);
     const emergencyContacts = parseJSONField(req.body.emergencyContacts);
 
+    //validate for reference & emergency
+    validateApplicationInput({
+      reference,
+      emergencyContacts,
+    });
+
+
     const profilePictureFile = req.files?.profilePicture?.[0];
     const driverLicenseFile = req.files?.driverLicense?.[0];
     const optReceiptFile = req.files?.optReceipt?.[0];
 
     let app = await OnboardingApplication.findOne({ user: req.user._id });
+
+    const profilePictureDocument = await createOrUpdateDocument(
+      req.user._id,
+      "profile_picture",
+      profilePictureFile
+    );
     
     const optReceiptDocument = await createOrUpdateDocument(
       req.user._id,
@@ -124,7 +165,7 @@ const saveApplication = async (req, res, next) => {
       lastName,
       middleName,
       preferredName,
-      profilePicture: profilePictureFile ? buildFileInfo(profilePictureFile) : app?.profilePicture || null,
+      profilePicture: profilePictureDocument?._id || app?.profilePicture || null,
       address,
       cellPhone,
       workPhone,
@@ -154,7 +195,7 @@ const saveApplication = async (req, res, next) => {
       await app.save();
     }
 
-    // After submit onboarding, update registration-yoken record
+    // After submit onboarding, update registration-token record
     await RegistrationToken.findOneAndUpdate(
       {
         email: req.user.email,
