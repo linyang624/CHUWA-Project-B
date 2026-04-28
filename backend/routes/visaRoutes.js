@@ -1,13 +1,9 @@
 import express from "express";
 
+import { getMyVisaStatus, uploadVisaDocument } from "../controllers/visaController.js";
 import { protect } from "../middlewares/authMiddleware.js";
 import { authorizeRoles } from "../middlewares/roleMiddleware.js";
 import upload from "../middlewares/uploadMiddleware.js";
-
-import {
-    getMyVisaStatus,
-    uploadVisaDocument,
-} from "../controllers/visaController.js";
 
 const router = express.Router();
 
