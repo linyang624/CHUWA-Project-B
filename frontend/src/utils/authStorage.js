@@ -1,44 +1,48 @@
-// The localStorage key used to save login information
-const AUTH_STORAGE_KEY = "employee_management_auth";
-
-// Read all saved auth data from localStorage
+// Get all saved auth data from localStorage
 export const getAuthFromStorage = () => {
-    try {
-        const savedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
+  const user = getUserFromStorage();
+  const token = getTokenFromStorage();
 
-        if (!savedAuth) {
-            return null;
-        }
+  if (!user || !token) {
+    return null;
+  }
 
-        return JSON.parse(savedAuth);
-    } catch (error) {
-        console.error("Failed to read auth from localStorage:", error);
-        return null;
-    }
+  return {
+    user,
+    token,
+    isAuthenticated: true,
+  };
 };
 
 // Get only the saved JWT token
 export const getTokenFromStorage = () => {
-    const auth = getAuthFromStorage();
-    return auth?.token || "";
+  return localStorage.getItem("token") || "";
 };
 
 // Get only the saved user object
 export const getUserFromStorage = () => {
-    const auth = getAuthFromStorage();
-    return auth?.user || null;
+  const savedUser = localStorage.getItem("user");
+
+  if (!savedUser) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(savedUser);
+  } catch (error) {
+    console.error("Failed to read user from localStorage:", error);
+    return null;
+  }
 };
 
 // Save auth data after login
 export const saveAuthToStorage = (authData) => {
-    try {
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authData));
-    } catch (error) {
-        console.error("Failed to save auth to localStorage:", error);
-    }
+  localStorage.setItem("user", JSON.stringify(authData.user));
+  localStorage.setItem("token", authData.token);
 };
 
 // Remove auth data after logout
 export const clearAuthFromStorage = () => {
-    localStorage.removeItem(AUTH_STORAGE_KEY);
+  localStorage.removeItem("user");
+  localStorage.removeItem("token");
 };

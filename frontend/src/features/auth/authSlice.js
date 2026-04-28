@@ -34,6 +34,8 @@ const authSlice = createSlice({
       localStorage.removeItem("token");
     },
     updateOnboardingStatus: (state, action) => {
+      if (!state.user) return;
+      
       state.user.onboardingStatus = action.payload;
       // Keep localStorage in sync, so refresh still shows the correct status.
       localStorage.setItem("user", JSON.stringify(state.user));
