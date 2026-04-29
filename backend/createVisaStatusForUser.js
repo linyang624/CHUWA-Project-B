@@ -32,14 +32,21 @@ if (app.workAuthorization?.visaTitle !== "f1_cpt_opt") {
 }
 
 const visaStatus = await VisaStatus.findOneAndUpdate(
-  { user: user._id },
+  { user: app.user },
   {
-    user: user._id,
-    currentStep: "opt_receipt",
-    optReceipt: app.workAuthorization.optReceipt?._id || null,
-  },
-  { new: true, upsert: true }
-);
+    user: app.user,
+    visaTitle: "f1_cpt_opt",
+    startDate: app.workAuthorization.startDate,
+    endDate: app.workAuthorization.endDate,
 
+    currentStep: "opt_receipt",
+
+    optReceipt: app.workAuthorization.optReceipt,
+  },
+  {
+    new: true,
+    upsert: true,
+  }
+);
 console.log("Visa status created/updated:", visaStatus);
 process.exit();
