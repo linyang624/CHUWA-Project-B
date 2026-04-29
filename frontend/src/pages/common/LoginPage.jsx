@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { loginSuccess } from "../features/auth/authSlice";
-import { loginUser } from "../api/authApi";
+import { loginSuccess } from "../../features/auth/authSlice";
+import { loginUser } from "../../api/authApi";
 
 export default function LoginPage() {
   const dispatch = useDispatch();
