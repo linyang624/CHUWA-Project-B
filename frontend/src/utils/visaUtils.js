@@ -114,3 +114,78 @@ export const getVisaActionLabel = (actionType) => {
 
   return "No Action";
 };
+
+// Calculate how many days are remaining until the visa/work authorization end date
+export const calculateDaysRemaining = (endDate) => {
+  if (!endDate) {
+    return "N/A";
+  }
+
+  const today = new Date();
+  const end = new Date(endDate);
+
+  if (Number.isNaN(end.getTime())) {
+    return "N/A";
+  }
+
+  // Clear time so the calculation is based on date only
+  today.setHours(0, 0, 0, 0);
+  end.setHours(0, 0, 0, 0);
+
+  const diffTime = end.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  return diffDays;
+};
+
+// Convert visa status object into readable next step text for HR
+export const getVisaNextStepText = (visaStatus) => {
+  if (!visaStatus) {
+    return "N/A";
+  }
+
+  if (visaStatus.isFinished || visaStatus.status === "finished") {
+    return "Finished";
+  }
+
+  if (visaStatus.nextStep) {
+    return visaStatus.nextStep;
+  }
+
+  if (visaStatus.nextStepText) {
+    return visaStatus.nextStepText;
+  }
+
+  const nextStepType = visaStatus.nextStepType || visaStatus.stepType;
+
+  if (nextStepType === "wait_hr_approval") {
+    return "Next step is to wait for HR approval";
+  }
+
+  if (nextStepType === "wait_employee_upload") {
+    return "Next step is to wait employee upload document";
+  }
+
+  if (nextStepType === "wait_employee_reupload") {
+    return "Next step is to wait employee reupload document";
+  }
+
+  const currentDocument =
+    visaStatus.currentDocument ||
+    visaStatus.pendingDocument ||
+    visaStatus.latestDocument;
+
+  if (currentDocument?.status === "pending") {
+    return "Next step is to wait for HR approval";
+  }
+
+  if (currentDocument?.status === "rejected") {
+    return "Next step is to wait employee reupload document";
+  }
+
+  if (visaStatus.waitingForEmployee) {
+    return "Next step is to wait employee upload document";
+  }
+
+  return "N/A";
+};
