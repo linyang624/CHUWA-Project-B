@@ -383,9 +383,9 @@ const hrSlice = createSlice({
         state.successMessage =
           action.payload.message || "Registration token generated successfully";
 
-        if (action.payload.registrationToken) {
-          state.registrationTokens.unshift(action.payload.registrationToken);
-        }
+        // if (action.payload.registrationToken) {
+        //   state.registrationTokens.unshift(action.payload.registrationToken);
+        // }
       })
       .addCase(generateRegistrationToken.rejected, (state, action) => {
         state.loading = false;
