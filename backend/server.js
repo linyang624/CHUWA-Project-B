@@ -8,6 +8,7 @@ import errorHandler from './middlewares/errorHandler.js';
 import hrRoutes from "./routes/hrRoutes.js";
 import visaRoutes from "./routes/visaRoutes.js";
 import documentRoutes from "./routes/documentRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -19,6 +20,7 @@ app.use(express.json());
 
 
 // Routes 
+app.use("/api/auth", authRoutes);
 app.use("/api/hr", hrRoutes);
 app.use("/api/visa", visaRoutes);
 app.use("/api/documents", documentRoutes);
