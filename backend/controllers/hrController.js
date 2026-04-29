@@ -1,5 +1,6 @@
 import crypto from "crypto";
 
+import User from "../models/User.js";
 import OnboardingApplication from "../models/OnboardingApplication.js";
 import VisaStatus from "../models/VisaStatus.js";
 import RegistrationToken from "../models/RegistrationToken.js";
@@ -17,13 +18,47 @@ export const generateRegistrationToken = async (req, res, next) => {
             throw new ValidationError("Email, first name, and last name are required");
         }
 
+        const normalizedEmail = email.trim().toLowerCase();
+        const normalizedFirstName = firstName.trim();
+        const normalizedLastName = lastName.trim();
+
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        if (!emailRegex.test(email)) {
+        if (!emailRegex.test(normalizedEmail)) {
             throw new ValidationError("Invalid email format");
         }
 
-        const normalizedEmail = email.toLowerCase();
+        /*
+            Business rule:
+            If this email already has a registered user account,
+            HR should not be able to send another registration token.
+        */
+        const existingUser = await User.findOne({
+            email: normalizedEmail,
+        });
+
+        if (existingUser) {
+            throw new ValidationError(
+                "This email has already been registered. You cannot send another registration token."
+            );
+        }
+
+        /*
+            Optional protection:
+            If this email already has an active unused registration token,
+            do not generate another duplicate token.
+        */
+        const existingActiveToken = await RegistrationToken.findOne({
+            email: normalizedEmail,
+            used: false,
+            expiresAt: { $gt: new Date() },
+        });
+
+        if (existingActiveToken) {
+            throw new ValidationError(
+                "This email already has an active registration token. Please use the existing link or wait until it expires."
+            );
+        }
 
         const token = crypto.randomBytes(32).toString("hex");
 
@@ -34,8 +69,8 @@ export const generateRegistrationToken = async (req, res, next) => {
 
         const registrationToken = await RegistrationToken.create({
             email: normalizedEmail,
-            firstName,
-            lastName,
+            firstName: normalizedFirstName,
+            lastName: normalizedLastName,
             token,
             registrationLink,
             expiresAt,
@@ -46,16 +81,16 @@ export const generateRegistrationToken = async (req, res, next) => {
         await sendEmail({
             to: normalizedEmail,
             subject: "Your Employee Registration Link",
-            text: `Hi ${firstName},
+            text: `Hi ${normalizedFirstName},
 
-        Please use the link below to register your employee account.
+Please use the link below to register your employee account.
 
-        ${registrationLink}
+${registrationLink}
 
-        This registration link will expire in 3 hours.
+This registration link will expire in 3 hours.
 
-        Best,
-        HR Team`,
+Best,
+HR Team`,
         });
 
         res.status(201).json({
