@@ -19,26 +19,35 @@ export default function LoginPage() {
     try {
       const data = await loginUser({ username, password });
 
+      const user = {
+        id: data.id,
+        username: data.username,
+        email: data.email,
+        role: data.role,
+        onboardingStatus: data.onboardingStatus || "never_submitted",
+      };
+
       dispatch(
         loginSuccess({
-          user: {
-            id: data.id,
-            username: data.username,
-            email: data.email,
-            role: data.role,
-            onboardingStatus: data.onboardingStatus || "never_submitted",
-          },
+          user,
           token: data.token,
         })
       );
 
+      // HR should go to HR dashboard
+      if (user.role === "hr") {
+        navigate("/hr/home");
+        return;
+      }
+
+      // Employee goes based on onboarding status
       if (data.onboardingStatus === "approved") {
         navigate("/personal-info");
       } else {
         navigate("/onboarding");
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Login failed");
     }
   };
 

@@ -1,41 +1,14 @@
 import { Button, ButtonGroup } from "react-bootstrap";
 
 import DocumentActions from "../common/DocumentActions";
+import { getVisaNextStepText } from "../../utils/visaUtils";
 
-/*
-  VisaActionCell
-
-  Used in VisaInProgressTable.
-
-  It shows different actions based on the current visa status step.
-
-  Cases:
-  1. Employee uploaded a document and waits for HR approval:
-     - Preview
-     - Approve
-     - Reject
-
-  2. HR is waiting for employee to upload or reupload document:
-     - Send Notification
-
-  Responsive:
-  - Buttons are small.
-  - Parent table is responsive, so this cell can scroll horizontally on small screens.
-*/
 export default function VisaActionCell({
   visaStatus,
   onApproveDocument,
   onRejectDocument,
   onSendNotification,
 }) {
-  /*
-    These field names may need to be adjusted based on backend response.
-
-    Expected idea:
-    - currentDocument: the document currently waiting for HR review
-    - currentDocumentStatus: pending / approved / rejected
-    - nextStepType: wait_hr_approval / wait_employee_upload / wait_employee_reupload
-  */
   const currentDocument =
     visaStatus.currentDocument ||
     visaStatus.pendingDocument ||
@@ -49,16 +22,19 @@ export default function VisaActionCell({
     visaStatus.pendingDocumentId;
 
   const nextStepType = visaStatus.nextStepType || visaStatus.stepType;
+  const nextStepText = getVisaNextStepText(visaStatus).toLowerCase();
 
   const isWaitingHrApproval =
     nextStepType === "wait_hr_approval" ||
     currentDocument?.status === "pending" ||
-    visaStatus.currentDocumentStatus === "pending";
+    visaStatus.currentDocumentStatus === "pending" ||
+    nextStepText.includes("waiting for hr");
 
   const isWaitingEmployee =
     nextStepType === "wait_employee_upload" ||
     nextStepType === "wait_employee_reupload" ||
-    visaStatus.waitingForEmployee === true;
+    visaStatus.waitingForEmployee === true ||
+    nextStepText.includes("waiting for employee");
 
   if (isWaitingHrApproval && currentDocumentId) {
     return (
