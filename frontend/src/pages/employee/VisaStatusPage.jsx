@@ -25,10 +25,10 @@ import Loading from "../../components/common/Loading";
 */
 
 const I983_EMPTY_TEMPLATE_URL =
-  "http://localhost:5001/uploads/i983_Empty_Template.pdf";
+  "http://localhost:5001/templates/i983_Empty_Template.pdf";
 
 const I983_SAMPLE_TEMPLATE_URL =
-  "http://localhost:5001/uploads/i983_Sample_Template.pdf";
+  "http://localhost:5001/templates/i983_Sample_Template.pdf";
 
 const VISA_STEPS = [
   {
