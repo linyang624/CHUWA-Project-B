@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { getMyProfile, updateProfileSection } from "../api/profileApi";
+import { getMyProfile, updateProfileSection } from "../../api/profileApi";
+import DocumentItem from "../../components/profile/DocumentItem";
 
 export default function PersonalInformationPage() {
   const [profile, setProfile] = useState(null);
@@ -55,26 +56,34 @@ export default function PersonalInformationPage() {
         <h2>Name</h2>
         {editingSection === "name" ? (
           <>
+            <label>First Name</label>
             <input
               value={draft.firstName || ""}
               onChange={(e) => setDraft({ ...draft, firstName: e.target.value })}
             />
+
+            <label>Last Name</label>
             <input
               value={draft.lastName || ""}
               onChange={(e) => setDraft({ ...draft, lastName: e.target.value })}
             />
+
+            <label>Middle Name</label>
             <input
               value={draft.middleName || ""}
-              onChange={(e) =>
-                setDraft({ ...draft, middleName: e.target.value })
-              }
+              onChange={(e) => setDraft({ ...draft, middleName: e.target.value })}
             />
+
+            <label>Preferred Name</label>
             <input
               value={draft.preferredName || ""}
-              onChange={(e) =>
-                setDraft({ ...draft, preferredName: e.target.value })
-              }
+              onChange={(e) => setDraft({ ...draft, preferredName: e.target.value })}
             />
+
+            <label>Email</label>
+            <input value={profile.email || ""} disabled readOnly />
+
+            <label>Gender</label>
             <select
               value={draft.gender || ""}
               onChange={(e) => setDraft({ ...draft, gender: e.target.value })}
@@ -84,6 +93,7 @@ export default function PersonalInformationPage() {
               <option value="female">Female</option>
               <option value="i_do_not_wish_to_answer">I do not wish to answer</option>
             </select>
+
             <button onClick={() => saveSection("name")}>Save</button>
             <button onClick={cancelEdit}>Cancel</button>
           </>
@@ -94,7 +104,7 @@ export default function PersonalInformationPage() {
             </p>
             <p>Preferred Name: {profile.preferredName || "N/A"}</p>
             <p>Email: {profile.email}</p>
-            <p>Gender: {profile.gender}</p>
+            <p>Gender: {formatGender(profile.gender)}</p>
             <button
               onClick={() =>
                 startEdit("name", {
@@ -117,18 +127,18 @@ export default function PersonalInformationPage() {
         {editingSection === "address" ? (
           <>
             <input
-              value={draft.address?.building || ""}
-              onChange={(e) =>
-                setDraft({
-                  address: { ...draft.address, building: e.target.value },
-                })
-              }
-            />
-            <input
               value={draft.address?.street || ""}
               onChange={(e) =>
                 setDraft({
                   address: { ...draft.address, street: e.target.value },
+                })
+              }
+            />
+            <input
+              value={draft.address?.building || ""}
+              onChange={(e) =>
+                setDraft({
+                  address: { ...draft.address, building: e.target.value },
                 })
               }
             />
@@ -162,7 +172,7 @@ export default function PersonalInformationPage() {
         ) : (
           <>
             <p>
-              {profile.address?.building} {profile.address?.street},{" "}
+              {profile.address?.street},{" "}{profile.address?.building},{" "}
               {profile.address?.city}, {profile.address?.state}{" "}
               {profile.address?.zip}
             </p>
@@ -267,7 +277,7 @@ export default function PersonalInformationPage() {
           </>
         ) : (
           <>
-            <p>Visa Title: {profile.workAuthorization?.visaTitle || "N/A"}</p>
+            <p>Visa Title: {formatVisaTitle(profile.workAuthorization?.visaTitle)}</p>
             <p>
               Start Date:{" "}
               {profile.workAuthorization?.startDate
@@ -407,41 +417,46 @@ export default function PersonalInformationPage() {
         )}
       </section>
       <section>
-        <h2>Documents</h2>
+        <h2>Uploaded Documents</h2>
+        <DocumentItem title="Profile Picture" document={profile.profilePicture} />
+        <DocumentItem title="Driver License" document={profile.driverLicense} />
 
-        <div>
-          <p>Profile Picture: {profile.profilePicture?.originalName || "Not uploaded"}</p>
-          {profile.profilePicture && (
-            <a
-              href={`http://localhost:5001/${profile.profilePicture.filePath}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Preview
-            </a>
-          )}
-        </div>
-
-        <div>
-          <p>Driver License: {profile.driverLicense?.originalName || "Not uploaded"}</p>
-          {profile.driverLicense && (
-            <a
-              href={`http://localhost:5001/${profile.driverLicense.filePath}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Preview
-            </a>
-          )}
-        </div>
-
-        <div>
-          <p>
-            OPT Receipt:{" "}
-            {profile.workAuthorization?.optReceipt?.originalName || "Not uploaded"}
-          </p>
-        </div>
+        {profile.isPermanentResidentOrCitizen ? (
+          <p>No work authorization document required for Citizen / Green Card.</p>
+        ) : (
+          <DocumentItem
+            title={
+              profile.workAuthorization?.visaTitle === "f1_cpt_opt"
+                ? "OPT Receipt"
+                : "Work Authorization Document"
+            }
+            document={profile.workAuthorization?.optReceipt}
+          />
+        )}
       </section>
     </div>
   );
+}
+
+
+function formatGender(gender) {
+  const map = {
+    male: "Male",
+    female: "Female",
+    i_do_not_wish_to_answer: "I do not wish to answer",
+  };
+
+  return map[gender] || "N/A";
+}
+
+function formatVisaTitle(title) {
+  const map = {
+    h1b: "H1-B",
+    l2: "L2",
+    f1_cpt_opt: "F1 CPT/OPT",
+    h4: "H4",
+    other: "Other",
+  };
+
+  return map[title] || "N/A";
 }

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   verifyRegistrationToken,
   registerWithToken,
-} from "../api/registrationApi";
+} from "../../api/registrationApi";
 
 export default function RegisterPage() {
   const { token } = useParams();

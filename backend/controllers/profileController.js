@@ -1,12 +1,19 @@
 import OnboardingApplication from "../models/OnboardingApplication.js";
 
+const findApprovedProfile = (userId) => {
+  return OnboardingApplication.findOne({
+    user: userId,
+    status: "approved",
+  })
+    .populate("profilePicture")
+    .populate("driverLicense")
+    .populate("workAuthorization.optReceipt");
+};
+
 // GET /api/profile/me
 export const getMyProfile = async (req, res, next) => {
   try {
-    const profile = await OnboardingApplication.findOne({
-      user: req.user._id,
-      status: "approved",
-    });
+    const profile = await findApprovedProfile(req.user._id);
 
     if (!profile) {
       return res.status(404).json({
@@ -68,7 +75,9 @@ export const updateProfileSection = async (req, res, next) => {
     }
 
     await profile.save();
-    res.json(profile);
+
+    const updatedProfile = await findApprovedProfile(req.user._id);
+    res.json(updatedProfile);
   } catch (error) {
     next(error);
   }

@@ -1,14 +1,12 @@
-// Centralized error handler.
-// It catches errors from routes/controllers and sends a JSON error response.
-const errorHandler = (err, req, res, next) => {
-    
-    console.error(err.stack);
+/*
+    Error handler middleware
+    Used to return error messages in one consistent format.
+*/
 
-    const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+export default function errorHandler(err, req, res, next) {
+    const statusCode = err.statusCode || 500;
 
     res.status(statusCode).json({
-        message: err.message || "Server Error",
+        message: err.message || "Server error",
     });
-};
-
-export default errorHandler;
+}

@@ -1,32 +1,70 @@
 import path from "path";
-import Document from "../models/Document.js";
+import fs from "fs";
 
+import Document from "../models/Document.js";
+import { NotFoundError, ForbiddenError } from "../utils/error.js";
+
+// Check whether current user can access this document
+const checkDocumentAccess = (document, user) => {
+    const isHR = user.role === "hr";
+    const isOwner = document.user.toString() === user._id.toString();
+
+    if (!isHR && !isOwner) {
+        throw new ForbiddenError("You do not have permission to access this document");
+    }
+};
+
+// Preview document in browser
 export const previewDocument = async (req, res, next) => {
     try {
-        const document = await Document.findById(req.params.documentId);
+        const { documentId } = req.params;
+
+        const document = await Document.findById(documentId);
 
         if (!document) {
-            return res.status(404).json({ message: "Document not found" });
+            throw new NotFoundError("Document not found");
+        }
+
+        checkDocumentAccess(document, req.user);
+
+        const filePath = path.resolve(document.filePath);
+
+        if (!fs.existsSync(filePath)) {
+            throw new NotFoundError("File not found");
         }
 
         res.setHeader("Content-Type", document.mimeType);
-        res.setHeader("Content-Disposition", "inline");
+        res.setHeader(
+            "Content-Disposition",
+            `inline; filename="${document.originalName}"`
+        );
 
-        res.sendFile(path.resolve(document.filePath));
+        res.sendFile(filePath);
     } catch (error) {
         next(error);
     }
 };
 
+// Download document
 export const downloadDocument = async (req, res, next) => {
     try {
-        const document = await Document.findById(req.params.documentId);
+        const { documentId } = req.params;
+
+        const document = await Document.findById(documentId);
 
         if (!document) {
-            return res.status(404).json({ message: "Document not found" });
+            throw new NotFoundError("Document not found");
         }
-        res.download(path.resolve(document.filePath), document.originalName);
-        
+
+        checkDocumentAccess(document, req.user);
+
+        const filePath = path.resolve(document.filePath);
+
+        if (!fs.existsSync(filePath)) {
+            throw new NotFoundError("File not found");
+        }
+
+        res.download(filePath, document.originalName);
     } catch (error) {
         next(error);
     }

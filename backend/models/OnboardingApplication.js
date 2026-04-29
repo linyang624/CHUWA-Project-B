@@ -12,26 +12,6 @@
 
 import mongoose from 'mongoose';
 
-const fileSchema = new mongoose.Schema (
-    {
-        originalName: {
-            type: String,
-        },
-        fileName: {
-            type: String,
-        },
-        filePath: {
-            type: String,
-        },
-        mimeType: {
-            type: String,
-        },
-    },
-    {
-        _id: false,
-    }
-);
-
 const applicationSchema = new mongoose.Schema (
     {
         user: {
@@ -62,7 +42,8 @@ const applicationSchema = new mongoose.Schema (
         },
 
         profilePicture: {
-            type: fileSchema,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Document",
             default: null,
         },
 
@@ -157,18 +138,19 @@ const applicationSchema = new mongoose.Schema (
         },
 
         driverLicense: {
-            type: fileSchema,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Document",
             default: null,
         },
         
         reference: {
             firstName: {
                 type: String,
-                required: true,
+                default: "",
             },
             lastName: {
                 type: String,
-                required: true,
+                default: "",
             },
             middleName: {
                 type: String,
@@ -184,9 +166,10 @@ const applicationSchema = new mongoose.Schema (
             },
             relationship: {
                 type: String,
-                required: true,
+                default: "",
             },
         },
+        
 
         emergencyContacts: [
             {
@@ -222,7 +205,7 @@ const applicationSchema = new mongoose.Schema (
             enum: ["pending", "approved", "rejected"],
             default: "pending",
         },
-        
+
         feedback: {
             type: String,
             default: "",
