@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
-
+// Connect to MongoDB using the MONGO_URI from environment variables.
+// If the connection fails, stop the server process.
 const connectDB = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI);

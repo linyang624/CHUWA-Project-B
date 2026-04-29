@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { verifyRegistrationToken, registerWithToken } from "../../api/registrationApi";
+import {
+  verifyRegistrationToken,
+  registerWithToken,
+} from "../../api/registrationApi";
 
 export default function RegisterPage() {
   const { token } = useParams();
