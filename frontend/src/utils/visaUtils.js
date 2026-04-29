@@ -57,7 +57,7 @@ export const formatStatusText = (status) => {
   if (status === "expired") return "Expired";
   if (status === "used") return "Used";
   if (status === "completed") return "Completed";
-
+  if (status === "submitted") return "Submitted"; 
   return "N/A";
 };
 
@@ -77,6 +77,10 @@ export const getStatusBadgeVariant = (status) => {
 
   if (status === "rejected" || status === "expired") {
     return "danger";
+  }
+
+  if (status === "submitted") {
+    return "info";
   }
 
   if (status === "used") {
