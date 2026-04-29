@@ -30,7 +30,7 @@ export default function RegistrationTokenTable({ tokens = [] }) {
       return <StatusBadge status="submitted" />;
     }
 
-    return <StatusBadge status={token.linkStatus || "active"} />;
+    return <StatusBadge status="not_submitted" />;
   };
 
   return (
