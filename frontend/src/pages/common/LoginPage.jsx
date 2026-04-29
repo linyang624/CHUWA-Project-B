@@ -31,14 +31,21 @@ export default function LoginPage() {
           token: data.token,
         })
       );
+      
+      if (data.role === "hr") {
+        navigate("/hr/home");
+        return;
+      }
 
       if (data.onboardingStatus === "approved") {
         navigate("/personal-info");
       } else {
         navigate("/onboarding");
       }
+      
+      navigate("/login");
     } catch (err) {
-      setError(err.message);
+      setError("Invalid username or password. If you are a new employee, please contact HR for a registration link.");
     }
   };
 
