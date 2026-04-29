@@ -9,17 +9,14 @@ import { logout } from "../../features/auth/authSlice";
 
   Shared navigation bar for logged-in HR and employee users.
 
-  HR sees:
-  - Home
-  - Employee Profiles
-  - Visa Status Management
-  - Hiring Management
-  - Logout
-
-  Employee sees:
-  - Personal Information
-  - Visa Status Management
-  - Logout
+  Rules:
+  - Not logged in: Header is not shown.
+  - HR logged in: show full HR navbar.
+  - Employee logged in and onboarding approved:
+    show Personal Information and Visa Status links.
+  - Employee logged in but onboarding not approved:
+    hide Personal Information and Visa Status links.
+    company name is not clickable, so user stays on onboarding / pending page.
 
   Responsive:
   - On medium and large screens, nav links show in one row.
@@ -31,22 +28,33 @@ export default function Header() {
 
   const { isAuthenticated, user } = useSelector((state) => state.auth);
 
+  const onboardingStatus = user?.onboardingStatus || "never_submitted";
+  const isHr = user?.role === "hr";
+  const isEmployee = user?.role === "employee";
+  const isApprovedEmployee = isEmployee && onboardingStatus === "approved";
+
   /*
     Decide where the brand should go when clicked.
-    HR goes to HR home.
-    Employee goes to Personal Information because employee does not need a homepage.
-    Unknown state goes to login.
+
+    HR:
+    - brand goes to HR home.
+
+    Approved employee:
+    - brand goes to Personal Information.
+
+    Employee not approved:
+    - brand should not navigate anywhere.
   */
   const getHomePath = () => {
-    if (user?.role === "hr") {
+    if (isHr) {
       return "/hr/home";
     }
 
-    if (user?.role === "employee") {
+    if (isApprovedEmployee) {
       return "/personal-info";
     }
 
-    return "/login";
+    return null;
   };
 
   /*
@@ -59,6 +67,7 @@ export default function Header() {
 
   /*
     HR navigation links.
+    HR always sees the full navbar after login.
   */
   const renderHrLinks = () => {
     return (
@@ -84,20 +93,27 @@ export default function Header() {
 
   /*
     Employee navigation links.
-    Registration and onboarding are not shown here because:
-    - registration is only through token link
-    - onboarding is only shown before approval
-    - approved employees normally use Personal Information as their main page
+
+    Before onboarding is approved:
+    - do not show Personal Information
+    - do not show Visa Status
+
+    After onboarding is approved:
+    - show both links.
   */
   const renderEmployeeLinks = () => {
+    if (!isApprovedEmployee) {
+      return null;
+    }
+
     return (
       <>
         <Nav.Link as={NavLink} to="/personal-info">
           Personal Information
         </Nav.Link>
 
-        <Nav.Link as={NavLink} to="/employee/visa-status-management">
-          Visa Status Management
+        <Nav.Link as={NavLink} to="/visa-status">
+          Visa Status
         </Nav.Link>
       </>
     );
@@ -111,19 +127,33 @@ export default function Header() {
     return null;
   }
 
+  const homePath = getHomePath();
+
   return (
     <Navbar expand="md" bg="light" className="border-bottom">
       <Container fluid>
-        <Navbar.Brand as={Link} to={getHomePath()}>
-          Chuwa Employee Management
-        </Navbar.Brand>
+        {/* 
+          Brand / company name.
+
+          If homePath exists, it is clickable.
+          If homePath is null, it becomes plain text and does not navigate.
+        */}
+        {homePath ? (
+          <Navbar.Brand as={Link} to={homePath}>
+            Chuwa Employee Management
+          </Navbar.Brand>
+        ) : (
+          <Navbar.Brand style={{ cursor: "default" }}>
+            Chuwa Employee Management
+          </Navbar.Brand>
+        )}
 
         <Navbar.Toggle aria-controls="main-navbar-nav" />
 
         <Navbar.Collapse id="main-navbar-nav">
           <Nav className="me-auto">
-            {user?.role === "hr" && renderHrLinks()}
-            {user?.role === "employee" && renderEmployeeLinks()}
+            {isHr && renderHrLinks()}
+            {isEmployee && renderEmployeeLinks()}
           </Nav>
 
           <div className="d-flex align-items-center gap-2 mt-3 mt-md-0">

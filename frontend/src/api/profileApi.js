@@ -39,3 +39,26 @@ export async function updateProfileSection(section, payload) {
 
   return data;
 }
+
+export async function updateProfilePicture(file) {
+  const token = localStorage.getItem("token");
+  const formData = new FormData();
+
+  formData.append("profilePicture", file);
+
+  const response = await fetch(`${API_BASE_URL}/profile/me/profile-picture`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to update profile picture");
+  }
+
+  return data;
+}

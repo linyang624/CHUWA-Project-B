@@ -1,44 +1,164 @@
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
+import { Alert, Button, Card, Col, Form, Row } from "react-bootstrap";
+
 import { updateOnboardingStatus } from "../../features/auth/authSlice";
 import {
   submitOnboardingApplication,
   getMyApplication,
 } from "../../api/onboardingApi";
+import Layout from "../../components/common/Layout";
+
+const DEFAULT_AVATAR_URL = "http://localhost:5001/uploads/default_photo.jpg";
 
 export default function OnboardingApplicationPage() {
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
+
   const [application, setApplication] = useState(null);
+  const [profilePreview, setProfilePreview] = useState(DEFAULT_AVATAR_URL);
 
   const {
     register,
     handleSubmit,
     watch,
+    control,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: {
       email: user?.email || "",
+      emergencyContacts: [
+        {
+          firstName: "",
+          lastName: "",
+          middleName: "",
+          phone: "",
+          email: "",
+          relationship: "",
+        },
+      ],
     },
+  });
+
+  const {
+    fields: emergencyFields,
+    append: appendEmergencyContact,
+    remove: removeEmergencyContact,
+  } = useFieldArray({
+    control,
+    name: "emergencyContacts",
   });
 
   const isPR = watch("isPermanentResidentOrCitizen");
   const visaTitle = watch("visaTitle");
 
+  /*
+    Fill the onboarding form with old rejected application data.
+
+    react-hook-form defaultValues only work on the first render.
+    After backend returns the rejected application, we need reset()
+    to put the old data back into the form.
+  */
+  const fillFormWithApplication = (app) => {
+    reset({
+      email: user?.email || "",
+
+      firstName: app.firstName || "",
+      lastName: app.lastName || "",
+      middleName: app.middleName || "",
+      preferredName: app.preferredName || "",
+
+      street: app.address?.street || "",
+      building: app.address?.building || "",
+      city: app.address?.city || "",
+      state: app.address?.state || "",
+      zip: app.address?.zip || "",
+
+      cellPhone: app.cellPhone || "",
+      workPhone: app.workPhone || "",
+
+      ssn: app.ssn || "",
+      dateOfBirth: app.dateOfBirth ? app.dateOfBirth.slice(0, 10) : "",
+      gender: app.gender || "",
+
+      isPermanentResidentOrCitizen: app.isPermanentResidentOrCitizen
+        ? "yes"
+        : "no",
+
+      residentType: app.residentType || "",
+
+      visaTitle: app.workAuthorization?.visaTitle || "",
+      otherTitle: app.workAuthorization?.otherTitle || "",
+      startDate: app.workAuthorization?.startDate
+        ? app.workAuthorization.startDate.slice(0, 10)
+        : "",
+      endDate: app.workAuthorization?.endDate
+        ? app.workAuthorization.endDate.slice(0, 10)
+        : "",
+
+      referenceFirstName: app.reference?.firstName || "",
+      referenceLastName: app.reference?.lastName || "",
+      referenceMiddleName: app.reference?.middleName || "",
+      referencePhone: app.reference?.phone || "",
+      referenceEmail: app.reference?.email || "",
+      referenceRelationship: app.reference?.relationship || "",
+
+      emergencyContacts:
+        app.emergencyContacts && app.emergencyContacts.length > 0
+          ? app.emergencyContacts
+          : [
+              {
+                firstName: "",
+                lastName: "",
+                middleName: "",
+                phone: "",
+                email: "",
+                relationship: "",
+              },
+            ],
+    });
+
+    /*
+      If the user already uploaded a profile picture before rejection,
+      show that uploaded picture. Otherwise show default avatar.
+    */
+    if (app.profilePicture?.fileName) {
+      setProfilePreview(
+        `http://localhost:5001/uploads/${app.profilePicture.fileName}`
+      );
+    } else {
+      setProfilePreview(DEFAULT_AVATAR_URL);
+    }
+  };
+
   useEffect(() => {
     const fetchStatus = async () => {
       try {
         const res = await getMyApplication();
-        const app = res.application || res;
+        const app = res.application || null;
 
         if (!app) {
           dispatch(updateOnboardingStatus("never_submitted"));
           setApplication(null);
+          setProfilePreview(DEFAULT_AVATAR_URL);
         } else {
           dispatch(updateOnboardingStatus(res.status || app.status));
           setApplication(app);
+
+          // Rejected users should see their previous application data.
+          if (app.status === "rejected") {
+            fillFormWithApplication(app);
+          }
+
+          // If the application is not rejected but still has picture data, show it.
+          if (app.status !== "rejected" && app.profilePicture?.fileName) {
+            setProfilePreview(
+              `http://localhost:5001/uploads/${app.profilePicture.fileName}`
+            );
+          }
         }
       } catch (err) {
         console.error(err);
@@ -46,7 +166,7 @@ export default function OnboardingApplicationPage() {
     };
 
     fetchStatus();
-  }, [dispatch]);
+  }, [dispatch, reset, user?.email]);
 
   if (!user) return null;
 
@@ -58,22 +178,26 @@ export default function OnboardingApplicationPage() {
 
   if (onboardingStatus === "pending") {
     return (
-      <div>
-        <h1>Onboarding Status</h1>
+      <Layout>
+        <h1 className="mb-4">Onboarding Status</h1>
 
-        <div
-          style={{
-            border: "1px solid grey",
-            padding: "12px",
-            marginBottom: "16px",
-            color: "grey",
-          }}
-        >
+        <Alert variant="secondary">
           Pending: Please wait for HR to review your application.
-        </div>
-      </div>
+        </Alert>
+      </Layout>
     );
   }
+
+  const hasReference = (data) => {
+    return (
+      data.referenceFirstName ||
+      data.referenceLastName ||
+      data.referenceMiddleName ||
+      data.referencePhone ||
+      data.referenceEmail ||
+      data.referenceRelationship
+    );
+  };
 
   const onSubmit = async (data) => {
     const formData = new FormData();
@@ -114,30 +238,23 @@ export default function OnboardingApplicationPage() {
       })
     );
 
-    formData.append(
-      "reference",
-      JSON.stringify({
-        firstName: data.referenceFirstName,
-        lastName: data.referenceLastName,
-        middleName: data.referenceMiddleName || "",
-        phone: data.referencePhone || "",
-        email: data.referenceEmail || "",
-        relationship: data.referenceRelationship,
-      })
-    );
+    if (hasReference(data)) {
+      formData.append(
+        "reference",
+        JSON.stringify({
+          firstName: data.referenceFirstName,
+          lastName: data.referenceLastName,
+          middleName: data.referenceMiddleName || "",
+          phone: data.referencePhone || "",
+          email: data.referenceEmail || "",
+          relationship: data.referenceRelationship,
+        })
+      );
+    }
 
     formData.append(
       "emergencyContacts",
-      JSON.stringify([
-        {
-          firstName: data.emergencyFirstName,
-          lastName: data.emergencyLastName,
-          middleName: data.emergencyMiddleName || "",
-          phone: data.emergencyPhone || "",
-          email: data.emergencyEmail || "",
-          relationship: data.emergencyRelationship,
-        },
-      ])
+      JSON.stringify(data.emergencyContacts)
     );
 
     if (data.profilePicture?.[0]) {
@@ -161,342 +278,739 @@ export default function OnboardingApplicationPage() {
   };
 
   return (
-    <div>
+    <Layout>
       {onboardingStatus === "rejected" ? (
         <>
-          <h1>Application Rejected</h1>
+          <h1 className="mb-4">Application Rejected</h1>
 
-          <div
-            style={{
-              border: "1px solid red",
-              padding: "12px",
-              marginBottom: "16px",
-              color: "red",
-            }}
-          >
+          <Alert variant="danger">
             <strong>HR Feedback:</strong>
-            <p>
+            <p className="mb-0">
               {application?.feedback ||
                 "Your application was rejected. Please update and resubmit."}
             </p>
-          </div>
+          </Alert>
         </>
       ) : (
         <>
-          <h1>Onboarding Application</h1>
-          <p>Please fill out your onboarding application.</p>
+          <h1 className="mb-2">Onboarding Application</h1>
+          <p className="text-muted mb-4">
+            Please fill out your onboarding application.
+          </p>
         </>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <h2>Name</h2>
+      <Form onSubmit={handleSubmit(onSubmit)}>
+        {/* Name */}
+        <Card className="mb-3">
+          <Card.Body>
+            <Card.Title className="mb-3">Name</Card.Title>
 
-        <div>
-          <label> First Name * </label>
-          <input
-            placeholder="First Name"
-            {...register("firstName", { required: "First name is required" })}
-          />
-          {errors.firstName && <p>{errors.firstName.message}</p>}
-        </div>
+            <Row className="g-3">
+              <Col xs={12}>
+                <div className="d-flex align-items-center gap-3 mb-3">
+                  <img
+                    src={profilePreview}
+                    alt="Profile preview"
+                    style={{
+                      width: "96px",
+                      height: "96px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      border: "1px solid #ddd",
+                    }}
+                  />
 
-        <div>
-          <label> Last Name * </label>
-          <input
-            placeholder="Last Name"
-            {...register("lastName", { required: "Last name is required" })}
-          />
-          {errors.lastName && <p>{errors.lastName.message}</p>}
-        </div>
+                  <div>
+                    <div className="fw-semibold">Profile Picture</div>
+                    <div className="text-muted small">
+                      Upload a profile picture for your employee profile.
+                    </div>
+                  </div>
+                </div>
+              </Col>
 
-        <div>
-          <label> Middle Name </label>
-          <input placeholder="Middle Name" {...register("middleName")} />
-        </div>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label>First Name *</Form.Label>
+                  <Form.Control
+                    placeholder="First Name"
+                    {...register("firstName", {
+                      required: "First name is required",
+                    })}
+                  />
+                  {errors.firstName && (
+                    <Form.Text className="text-danger">
+                      {errors.firstName.message}
+                    </Form.Text>
+                  )}
+                </Form.Group>
+              </Col>
 
-        <div>
-          <label> Preferred Name </label>
-          <input placeholder="Preferred Name" {...register("preferredName")} />
-        </div>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label>Last Name *</Form.Label>
+                  <Form.Control
+                    placeholder="Last Name"
+                    {...register("lastName", {
+                      required: "Last name is required",
+                    })}
+                  />
+                  {errors.lastName && (
+                    <Form.Text className="text-danger">
+                      {errors.lastName.message}
+                    </Form.Text>
+                  )}
+                </Form.Group>
+              </Col>
 
-        <div>
-          <label> Profile Picture </label>
-          <input type="file" accept="image/*" {...register("profilePicture")} />
-        </div>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label>Middle Name</Form.Label>
+                  <Form.Control
+                    placeholder="Middle Name"
+                    {...register("middleName")}
+                  />
+                </Form.Group>
+              </Col>
 
-        <h2>Address</h2>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label>Preferred Name</Form.Label>
+                  <Form.Control
+                    placeholder="Preferred Name"
+                    {...register("preferredName")}
+                  />
+                </Form.Group>
+              </Col>
 
-        <div>
-          <label> Street * </label>
-          <input
-            placeholder="Street"
-            {...register("street", { required: "Street is required" })}
-          />
-        </div>
-        
-        <div>
-          <label> Building / Apt </label>
-          <input placeholder="Building / Apt" {...register("building")} />
-        </div>
+              <Col xs={12}>
+                <Form.Group>
+                  <Form.Label>Profile Picture</Form.Label>
+                  <Form.Control
+                    type="file"
+                    accept="image/*"
+                    {...register("profilePicture", {
+                      onChange: (event) => {
+                        const file = event.target.files?.[0];
 
-        <div>
-          <label> City * </label>
-          <input
-            placeholder="City"
-            {...register("city", { required: "City is required" })}
-          />
-        </div>
+                        if (file) {
+                          setProfilePreview(URL.createObjectURL(file));
+                        } else {
+                          setProfilePreview(DEFAULT_AVATAR_URL);
+                        }
+                      },
+                    })}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
 
-        <div>
-          <label> State * </label>
-          <input
-            placeholder="State"
-            {...register("state", { required: "State is required" })}
-          />
-        </div>
+        {/* Address */}
+        <Card className="mb-3">
+          <Card.Body>
+            <Card.Title className="mb-3">Address</Card.Title>
 
-        <div>
-          <label> Zip * </label>
-          <input
-            placeholder="Zip"
-            {...register("zip", { required: "Zip is required" })}
-          />
-        </div>
+            <Row className="g-3">
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label>Street *</Form.Label>
+                  <Form.Control
+                    placeholder="Street"
+                    {...register("street", {
+                      required: "Street is required",
+                    })}
+                  />
+                  {errors.street && (
+                    <Form.Text className="text-danger">
+                      {errors.street.message}
+                    </Form.Text>
+                  )}
+                </Form.Group>
+              </Col>
 
-        <h2>Contact</h2>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label>Building / Apt</Form.Label>
+                  <Form.Control
+                    placeholder="Building / Apt"
+                    {...register("building")}
+                  />
+                </Form.Group>
+              </Col>
 
-        <div>
-          <label> Cell Phone Number * </label>
-          <input
-            placeholder="Cell Phone"
-            {...register("cellPhone", { required: "Cell phone is required" })}
-          />
-        </div>
+              <Col xs={12} md={4}>
+                <Form.Group>
+                  <Form.Label>City *</Form.Label>
+                  <Form.Control
+                    placeholder="City"
+                    {...register("city", {
+                      required: "City is required",
+                    })}
+                  />
+                  {errors.city && (
+                    <Form.Text className="text-danger">
+                      {errors.city.message}
+                    </Form.Text>
+                  )}
+                </Form.Group>
+              </Col>
 
-        <div>
-          <label> Work Phone Number </label>
-          <input placeholder="Work Phone" {...register("workPhone")} />
-        </div>
+              <Col xs={12} md={4}>
+                <Form.Group>
+                  <Form.Label>State *</Form.Label>
+                  <Form.Control
+                    placeholder="State"
+                    {...register("state", {
+                      required: "State is required",
+                    })}
+                  />
+                  {errors.state && (
+                    <Form.Text className="text-danger">
+                      {errors.state.message}
+                    </Form.Text>
+                  )}
+                </Form.Group>
+              </Col>
 
-        <div>
-          <label> Email </label>
-          <input value={user.email || ""} disabled readOnly />
-        </div>
+              <Col xs={12} md={4}>
+                <Form.Group>
+                  <Form.Label>Zip *</Form.Label>
+                  <Form.Control
+                    placeholder="Zip"
+                    {...register("zip", {
+                      required: "Zip is required",
+                    })}
+                  />
+                  {errors.zip && (
+                    <Form.Text className="text-danger">
+                      {errors.zip.message}
+                    </Form.Text>
+                  )}
+                </Form.Group>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
 
-        <h2>Personal Information</h2>
+        {/* Contact */}
+        <Card className="mb-3">
+          <Card.Body>
+            <Card.Title className="mb-3">Contact</Card.Title>
 
-        <div>
-          <label> SSN * </label>
-          <input
-            placeholder="SSN"
-            {...register("ssn", { required: "SSN is required" })}
-          />
-        </div>
+            <Row className="g-3">
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label>Cell Phone Number *</Form.Label>
+                  <Form.Control
+                    placeholder="Cell Phone"
+                    {...register("cellPhone", {
+                      required: "Cell phone is required",
+                    })}
+                  />
+                  {errors.cellPhone && (
+                    <Form.Text className="text-danger">
+                      {errors.cellPhone.message}
+                    </Form.Text>
+                  )}
+                </Form.Group>
+              </Col>
 
-        <div>
-          <label> Date of Birth * </label>
-          <input
-            type="date"
-            {...register("dateOfBirth", {
-              required: "Date of birth is required",
-            })}
-          />
-        </div>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label>Work Phone Number</Form.Label>
+                  <Form.Control
+                    placeholder="Work Phone"
+                    {...register("workPhone")}
+                  />
+                </Form.Group>
+              </Col>
 
-        <div>
-          <label> Gender * </label>
-          <select {...register("gender", { required: "Gender is required" })}>
-            <option value="">Select Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="i_do_not_wish_to_answer">
-              I do not wish to answer
-            </option>
-          </select>
-        </div>
+              <Col xs={12}>
+                <Form.Group>
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control value={user.email || ""} disabled readOnly />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
 
-        <h2>Work Authorization</h2>
+        {/* Personal Information */}
+        <Card className="mb-3">
+          <Card.Body>
+            <Card.Title className="mb-3">Personal Information</Card.Title>
 
-        <div>
-          <label> Are you a permanent resident or citizen of the U.S.? * </label>
-          <select
-            {...register("isPermanentResidentOrCitizen", {
-              required: "This field is required",
-            })}
-          >
-            <option value="">Select</option>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
-          </select>
-        </div>
+            <Row className="g-3">
+              <Col xs={12} md={4}>
+                <Form.Group>
+                  <Form.Label>SSN *</Form.Label>
+                  <Form.Control
+                    placeholder="SSN"
+                    {...register("ssn", {
+                      required: "SSN is required",
+                    })}
+                  />
+                  {errors.ssn && (
+                    <Form.Text className="text-danger">
+                      {errors.ssn.message}
+                    </Form.Text>
+                  )}
+                </Form.Group>
+              </Col>
 
-        {isPR === "yes" && (
-          <div>
-            <label> Status Type </label>
-            <select {...register("residentType")}>
-              <option value="">Select Type</option>
-              <option value="green_card">Green Card</option>
-              <option value="citizen">Citizen</option>
-            </select>
-          </div>
-        )}
+              <Col xs={12} md={4}>
+                <Form.Group>
+                  <Form.Label>Date of Birth *</Form.Label>
+                  <Form.Control
+                    type="date"
+                    {...register("dateOfBirth", {
+                      required: "Date of birth is required",
+                    })}
+                  />
+                  {errors.dateOfBirth && (
+                    <Form.Text className="text-danger">
+                      {errors.dateOfBirth.message}
+                    </Form.Text>
+                  )}
+                </Form.Group>
+              </Col>
 
-        {isPR === "no" && (
-          <>
-            <div>
-              <label> Work Authorization Type </label>
-              <select {...register("visaTitle")}>
-                <option value="">Select Work Authorization</option>
-                <option value="h1b">H1-B</option>
-                <option value="l2">L2</option>
-                <option value="f1_cpt_opt">F1 CPT/OPT</option>
-                <option value="h4">H4</option>
-                <option value="other">Other</option>
-              </select>
+              <Col xs={12} md={4}>
+                <Form.Group>
+                  <Form.Label>Gender *</Form.Label>
+                  <Form.Select
+                    {...register("gender", {
+                      required: "Gender is required",
+                    })}
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="i_do_not_wish_to_answer">
+                      I do not wish to answer
+                    </option>
+                  </Form.Select>
+                  {errors.gender && (
+                    <Form.Text className="text-danger">
+                      {errors.gender.message}
+                    </Form.Text>
+                  )}
+                </Form.Group>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
+
+        {/* Work Authorization */}
+        <Card className="mb-3">
+          <Card.Body>
+            <Card.Title className="mb-3">Work Authorization</Card.Title>
+
+            <Row className="g-3">
+              <Col xs={12}>
+                <Form.Group>
+                  <Form.Label>
+                    Are you a permanent resident or citizen of the U.S.? *
+                  </Form.Label>
+                  <Form.Select
+                    {...register("isPermanentResidentOrCitizen", {
+                      required: "This field is required",
+                    })}
+                  >
+                    <option value="">Select</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </Form.Select>
+                  {errors.isPermanentResidentOrCitizen && (
+                    <Form.Text className="text-danger">
+                      {errors.isPermanentResidentOrCitizen.message}
+                    </Form.Text>
+                  )}
+                </Form.Group>
+              </Col>
+
+              {isPR === "yes" && (
+                <Col xs={12} md={6}>
+                  <Form.Group>
+                    <Form.Label>Status Type</Form.Label>
+                    <Form.Select {...register("residentType")}>
+                      <option value="">Select Type</option>
+                      <option value="green_card">Green Card</option>
+                      <option value="citizen">Citizen</option>
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+              )}
+
+              {isPR === "no" && (
+                <>
+                  <Col xs={12} md={6}>
+                    <Form.Group>
+                      <Form.Label>Work Authorization Type</Form.Label>
+                      <Form.Select {...register("visaTitle")}>
+                        <option value="">Select Work Authorization</option>
+                        <option value="h1b">H1-B</option>
+                        <option value="l2">L2</option>
+                        <option value="f1_cpt_opt">F1 CPT/OPT</option>
+                        <option value="h4">H4</option>
+                        <option value="other">Other</option>
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+
+                  {visaTitle === "other" && (
+                    <Col xs={12} md={6}>
+                      <Form.Group>
+                        <Form.Label>Other Visa Title</Form.Label>
+                        <Form.Control
+                          placeholder="Other Visa Title"
+                          {...register("otherTitle")}
+                        />
+                      </Form.Group>
+                    </Col>
+                  )}
+
+                  <Col xs={12} md={6}>
+                    <Form.Group>
+                      <Form.Label>Start Date</Form.Label>
+                      <Form.Control type="date" {...register("startDate")} />
+                    </Form.Group>
+                  </Col>
+
+                  <Col xs={12} md={6}>
+                    <Form.Group>
+                      <Form.Label>End Date</Form.Label>
+                      <Form.Control type="date" {...register("endDate")} />
+                    </Form.Group>
+                  </Col>
+
+                  {visaTitle && (
+                    <Col xs={12}>
+                      <Form.Group>
+                        <Form.Label>
+                          {visaTitle === "f1_cpt_opt"
+                            ? "OPT Receipt"
+                            : "Work Authorization Document"}
+                        </Form.Label>
+                        <Form.Control
+                          type="file"
+                          accept=".pdf,image/*"
+                          {...register("optReceipt")}
+                        />
+                      </Form.Group>
+                    </Col>
+                  )}
+                </>
+              )}
+
+              <Col xs={12}>
+                <Form.Group>
+                  <Form.Label>Driver License</Form.Label>
+                  <Form.Control
+                    type="file"
+                    accept=".pdf,image/*"
+                    {...register("driverLicense")}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
+
+        {/* Reference */}
+        <Card className="mb-3">
+          <Card.Body>
+            <Card.Title className="mb-3">Reference</Card.Title>
+
+            <p className="text-muted small mb-3">
+              Reference is optional. If you provide a reference, first name,
+              last name, and relationship are required.
+            </p>
+
+            <Row className="g-3">
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label>Reference First Name</Form.Label>
+                  <Form.Control
+                    placeholder="Reference First Name"
+                    {...register("referenceFirstName", {
+                      validate: (value, formValues) => {
+                        const hasAnyReference =
+                          value ||
+                          formValues.referenceLastName ||
+                          formValues.referenceMiddleName ||
+                          formValues.referencePhone ||
+                          formValues.referenceEmail ||
+                          formValues.referenceRelationship;
+
+                        if (hasAnyReference && !value) {
+                          return "First name is required if reference is provided";
+                        }
+
+                        return true;
+                      },
+                    })}
+                  />
+                  {errors.referenceFirstName && (
+                    <Form.Text className="text-danger">
+                      {errors.referenceFirstName.message}
+                    </Form.Text>
+                  )}
+                </Form.Group>
+              </Col>
+
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label>Reference Last Name</Form.Label>
+                  <Form.Control
+                    placeholder="Reference Last Name"
+                    {...register("referenceLastName", {
+                      validate: (value, formValues) => {
+                        const hasAnyReference =
+                          formValues.referenceFirstName ||
+                          value ||
+                          formValues.referenceMiddleName ||
+                          formValues.referencePhone ||
+                          formValues.referenceEmail ||
+                          formValues.referenceRelationship;
+
+                        if (hasAnyReference && !value) {
+                          return "Last name is required if reference is provided";
+                        }
+
+                        return true;
+                      },
+                    })}
+                  />
+                  {errors.referenceLastName && (
+                    <Form.Text className="text-danger">
+                      {errors.referenceLastName.message}
+                    </Form.Text>
+                  )}
+                </Form.Group>
+              </Col>
+
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label>Reference Middle Name</Form.Label>
+                  <Form.Control
+                    placeholder="Reference Middle Name"
+                    {...register("referenceMiddleName")}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label>Reference Phone</Form.Label>
+                  <Form.Control
+                    placeholder="Reference Phone"
+                    {...register("referencePhone")}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label>Reference Email</Form.Label>
+                  <Form.Control
+                    placeholder="Reference Email"
+                    {...register("referenceEmail")}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label>Reference Relationship</Form.Label>
+                  <Form.Control
+                    placeholder="Relationship"
+                    {...register("referenceRelationship", {
+                      validate: (value, formValues) => {
+                        const hasAnyReference =
+                          formValues.referenceFirstName ||
+                          formValues.referenceLastName ||
+                          formValues.referenceMiddleName ||
+                          formValues.referencePhone ||
+                          formValues.referenceEmail ||
+                          value;
+
+                        if (hasAnyReference && !value) {
+                          return "Relationship is required if reference is provided";
+                        }
+
+                        return true;
+                      },
+                    })}
+                  />
+                  {errors.referenceRelationship && (
+                    <Form.Text className="text-danger">
+                      {errors.referenceRelationship.message}
+                    </Form.Text>
+                  )}
+                </Form.Group>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
+
+        {/* Emergency Contact */}
+        <Card className="mb-3">
+          <Card.Body>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <Card.Title className="mb-0">Emergency Contact</Card.Title>
+
+              <Button
+                type="button"
+                size="sm"
+                variant="outline-primary"
+                onClick={() =>
+                  appendEmergencyContact({
+                    firstName: "",
+                    lastName: "",
+                    middleName: "",
+                    phone: "",
+                    email: "",
+                    relationship: "",
+                  })
+                }
+              >
+                Add Contact
+              </Button>
             </div>
 
-            {visaTitle === "other" && (
-              <div>
-                <label> Other Visa Title </label>
-                <input
-                  placeholder="Other Visa Title"
-                  {...register("otherTitle")}
-                />
-              </div>
-            )}
+            {emergencyFields.map((field, index) => (
+              <Card key={field.id} className="mb-3 border">
+                <Card.Body>
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h6 className="mb-0">Emergency Contact {index + 1}</h6>
 
-            <div>
-              <label> Start Date </label>
-              <input type="date" {...register("startDate")} />
-            </div>
+                    {emergencyFields.length > 1 && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline-danger"
+                        onClick={() => removeEmergencyContact(index)}
+                      >
+                        Remove
+                      </Button>
+                    )}
+                  </div>
 
-            <div>
-              <label> End Date </label>
-              <input type="date" {...register("endDate")} />
-            </div>
+                  <Row className="g-3">
+                    <Col xs={12} md={6}>
+                      <Form.Group>
+                        <Form.Label>First Name *</Form.Label>
+                        <Form.Control
+                          placeholder="Emergency First Name"
+                          {...register(
+                            `emergencyContacts.${index}.firstName`,
+                            {
+                              required: "First name is required",
+                            }
+                          )}
+                        />
+                        {errors.emergencyContacts?.[index]?.firstName && (
+                          <Form.Text className="text-danger">
+                            {
+                              errors.emergencyContacts[index].firstName
+                                .message
+                            }
+                          </Form.Text>
+                        )}
+                      </Form.Group>
+                    </Col>
 
-            {visaTitle && (
-              <div>
-                <label>
-                  {visaTitle === "f1_cpt_opt"
-                    ? " OPT Receipt "
-                    : " Work Authorization Document "}
-                </label>
-                <input
-                  type="file"
-                  accept=".pdf,image/*"
-                  {...register("optReceipt")}
-                />
-              </div>
-            )}
-          </>
-        )}
+                    <Col xs={12} md={6}>
+                      <Form.Group>
+                        <Form.Label>Last Name *</Form.Label>
+                        <Form.Control
+                          placeholder="Emergency Last Name"
+                          {...register(
+                            `emergencyContacts.${index}.lastName`,
+                            {
+                              required: "Last name is required",
+                            }
+                          )}
+                        />
+                        {errors.emergencyContacts?.[index]?.lastName && (
+                          <Form.Text className="text-danger">
+                            {errors.emergencyContacts[index].lastName.message}
+                          </Form.Text>
+                        )}
+                      </Form.Group>
+                    </Col>
 
-        <div>
-          <label> Driver License </label>
-          <input
-            type="file"
-            accept=".pdf,image/*"
-            {...register("driverLicense")}
-          />
+                    <Col xs={12} md={6}>
+                      <Form.Group>
+                        <Form.Label>Middle Name</Form.Label>
+                        <Form.Control
+                          placeholder="Emergency Middle Name"
+                          {...register(
+                            `emergencyContacts.${index}.middleName`
+                          )}
+                        />
+                      </Form.Group>
+                    </Col>
+
+                    <Col xs={12} md={6}>
+                      <Form.Group>
+                        <Form.Label>Phone</Form.Label>
+                        <Form.Control
+                          placeholder="Emergency Phone"
+                          {...register(`emergencyContacts.${index}.phone`)}
+                        />
+                      </Form.Group>
+                    </Col>
+
+                    <Col xs={12} md={6}>
+                      <Form.Group>
+                        <Form.Label>Email</Form.Label>
+                        <Form.Control
+                          placeholder="Emergency Email"
+                          {...register(`emergencyContacts.${index}.email`)}
+                        />
+                      </Form.Group>
+                    </Col>
+
+                    <Col xs={12} md={6}>
+                      <Form.Group>
+                        <Form.Label>Relationship *</Form.Label>
+                        <Form.Control
+                          placeholder="Relationship"
+                          {...register(
+                            `emergencyContacts.${index}.relationship`,
+                            {
+                              required: "Relationship is required",
+                            }
+                          )}
+                        />
+                        {errors.emergencyContacts?.[index]?.relationship && (
+                          <Form.Text className="text-danger">
+                            {
+                              errors.emergencyContacts[index].relationship
+                                .message
+                            }
+                          </Form.Text>
+                        )}
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                </Card.Body>
+              </Card>
+            ))}
+          </Card.Body>
+        </Card>
+
+        <div className="d-flex justify-content-end mb-4">
+          <Button type="submit" variant="primary">
+            Submit Application
+          </Button>
         </div>
-
-        <h2>Reference</h2>
-
-        <div>
-          <label> Reference First Name * </label>
-          <input
-            placeholder="Reference First Name"
-            {...register("referenceFirstName", { required: "Required" })}
-          />
-        </div>
-
-        <div>
-          <label> Reference Last Name * </label>
-          <input
-            placeholder="Reference Last Name"
-            {...register("referenceLastName", { required: "Required" })}
-          />
-        </div>
-
-        <div>
-          <label> Reference Middle Name </label>
-          <input
-            placeholder="Reference Middle Name"
-            {...register("referenceMiddleName")}
-          />
-        </div>
-
-        <div>
-          <label> Reference Phone </label>
-          <input placeholder="Reference Phone" {...register("referencePhone")} />
-        </div>
-
-        <div>
-          <label> Reference Email </label>
-          <input placeholder="Reference Email" {...register("referenceEmail")} />
-        </div>
-
-        <div>
-          <label> Reference Relationship * </label>
-          <input
-            placeholder="Relationship"
-            {...register("referenceRelationship", { required: "Required" })}
-          />
-        </div>
-
-        <h2>Emergency Contact</h2>
-
-        <div>
-          <label> Emergency First Name * </label>
-          <input
-            placeholder="Emergency First Name"
-            {...register("emergencyFirstName", { required: "Required" })}
-          />
-        </div>
-
-        <div>
-          <label> Emergency Last Name * </label>
-          <input
-            placeholder="Emergency Last Name"
-            {...register("emergencyLastName", { required: "Required" })}
-          />
-        </div>
-
-        <div>
-          <label> Emergency Middle Name </label>
-          <input
-            placeholder="Emergency Middle Name"
-            {...register("emergencyMiddleName")}
-          />
-        </div>
-
-        <div>
-          <label> Emergency Phone </label>
-          <input
-            placeholder="Emergency Phone"
-            {...register("emergencyPhone")}
-          />
-        </div>
-
-        <div>
-          <label> Emergency Email </label>
-          <input
-            placeholder="Emergency Email"
-            {...register("emergencyEmail")}
-          />
-        </div>
-
-        <div>
-          <label> Emergency Relationship * </label>
-          <input
-            placeholder="Relationship"
-            {...register("emergencyRelationship", { required: "Required" })}
-          />
-        </div>
-
-        <button type="submit">Submit Application</button>
-      </form>
-    </div>
+      </Form>
+    </Layout>
   );
 }

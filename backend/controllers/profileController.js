@@ -1,4 +1,5 @@
 import OnboardingApplication from "../models/OnboardingApplication.js";
+import Document from "../models/Document.js";
 
 const findApprovedProfile = (userId) => {
   return OnboardingApplication.findOne({
@@ -74,6 +75,64 @@ export const updateProfileSection = async (req, res, next) => {
       profile.emergencyContacts = req.body.emergencyContacts;
     }
 
+    await profile.save();
+
+    const updatedProfile = await findApprovedProfile(req.user._id);
+    res.json(updatedProfile);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// PUT /api/profile/me/profile-picture
+export const updateProfilePicture = async (req, res, next) => {
+  try {
+    const profile = await OnboardingApplication.findOne({
+      user: req.user._id,
+      status: "approved",
+    });
+
+    if (!profile) {
+      return res.status(404).json({
+        message: "Approved profile not found",
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        message: "Profile picture file is required",
+      });
+    }
+
+    /*
+      Update or create the user's profile picture document.
+
+      We use documentType = "profile_picture" so it matches
+      the onboarding upload logic and the Document model.
+    */
+    const profilePictureDocument = await Document.findOneAndUpdate(
+      {
+        user: req.user._id,
+        documentType: "profile_picture",
+      },
+      {
+        user: req.user._id,
+        documentType: "profile_picture",
+        originalName: req.file.originalname,
+        fileName: req.file.filename,
+        filePath: req.file.path,
+        mimeType: req.file.mimetype,
+        status: "approved",
+        feedback: "",
+      },
+      {
+        new: true,
+        upsert: true,
+        runValidators: true,
+      }
+    );
+
+    profile.profilePicture = profilePictureDocument._id;
     await profile.save();
 
     const updatedProfile = await findApprovedProfile(req.user._id);

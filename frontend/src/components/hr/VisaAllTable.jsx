@@ -23,8 +23,18 @@ import {
   - I-983
   - I-20
 
-  Responsive:
-  - Uses DataTable, which uses Bootstrap responsive table.
+  Important:
+  Backend returns approvedDocuments as an array:
+  [
+    {
+      type: "opt_receipt",
+      label: "OPT Receipt",
+      document: {...}
+    }
+  ]
+
+  So the frontend needs to find the item by type,
+  then pass item.document to DocumentActions.
 */
 export default function VisaAllTable({ visaStatuses = [] }) {
   const columns = [
@@ -38,7 +48,12 @@ export default function VisaAllTable({ visaStatuses = [] }) {
   ];
 
   const getVisaStatusId = (visaStatus) => {
-    return visaStatus._id || visaStatus.id;
+    return (
+      visaStatus.visaStatusId ||
+      visaStatus._id ||
+      visaStatus.id ||
+      visaStatus.employeeId
+    );
   };
 
   const getLegalFullName = (visaStatus) => {
@@ -68,56 +83,21 @@ export default function VisaAllTable({ visaStatuses = [] }) {
   };
 
   /*
-    The backend document field names may be different.
-    This helper tries several common names.
+    Get one approved visa document from backend response.
+
+    Backend approvedDocuments item shape:
+    {
+      type: "opt_receipt" | "opt_ead" | "i_983" | "i_20",
+      label: "...",
+      document: {...}
+    }
   */
   const getDocument = (visaStatus, type) => {
-    if (type === "optReceipt") {
-      return (
-        visaStatus.optReceipt ||
-        visaStatus.documents?.optReceipt ||
-        visaStatus.approvedDocuments?.optReceipt ||
-        null
-      );
-    }
+    const approvedDocuments = visaStatus.approvedDocuments || [];
 
-    if (type === "optEad") {
-      return (
-        visaStatus.optEad ||
-        visaStatus.optEAD ||
-        visaStatus.documents?.optEad ||
-        visaStatus.documents?.optEAD ||
-        visaStatus.approvedDocuments?.optEad ||
-        visaStatus.approvedDocuments?.optEAD ||
-        null
-      );
-    }
+    const matchedItem = approvedDocuments.find((item) => item.type === type);
 
-    if (type === "i983") {
-      return (
-        visaStatus.i983 ||
-        visaStatus.i_983 ||
-        visaStatus.documents?.i983 ||
-        visaStatus.documents?.i_983 ||
-        visaStatus.approvedDocuments?.i983 ||
-        visaStatus.approvedDocuments?.i_983 ||
-        null
-      );
-    }
-
-    if (type === "i20") {
-      return (
-        visaStatus.i20 ||
-        visaStatus.i_20 ||
-        visaStatus.documents?.i20 ||
-        visaStatus.documents?.i_20 ||
-        visaStatus.approvedDocuments?.i20 ||
-        visaStatus.approvedDocuments?.i_20 ||
-        null
-      );
-    }
-
-    return null;
+    return matchedItem?.document || null;
   };
 
   return (
@@ -160,25 +140,43 @@ export default function VisaAllTable({ visaStatuses = [] }) {
             </td>
 
             <td>
-              {visaStatus.isFinished || visaStatus.status === "finished"
+              {visaStatus.isFinished ||
+              visaStatus.status === "finished" ||
+              visaStatus.currentStep === "completed"
                 ? "Finished"
                 : getVisaNextStepText(visaStatus)}
             </td>
 
             <td>
-              <DocumentActions document={getDocument(visaStatus, "optReceipt")} />
+              <DocumentActions
+                document={getDocument(visaStatus, "opt_receipt")}
+                showPreview={true}
+                showDownload={true}
+              />
             </td>
 
             <td>
-              <DocumentActions document={getDocument(visaStatus, "optEad")} />
+              <DocumentActions
+                document={getDocument(visaStatus, "opt_ead")}
+                showPreview={true}
+                showDownload={true}
+              />
             </td>
 
             <td>
-              <DocumentActions document={getDocument(visaStatus, "i983")} />
+              <DocumentActions
+                document={getDocument(visaStatus, "i_983")}
+                showPreview={true}
+                showDownload={true}
+              />
             </td>
 
             <td>
-              <DocumentActions document={getDocument(visaStatus, "i20")} />
+              <DocumentActions
+                document={getDocument(visaStatus, "i_20")}
+                showPreview={true}
+                showDownload={true}
+              />
             </td>
           </tr>
         );

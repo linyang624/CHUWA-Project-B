@@ -22,7 +22,6 @@ export default function RegistrationTokenTable({ tokens = [] }) {
     { key: "name", label: "Person's Name" },
     { key: "link", label: "Registration Link" },
     { key: "onboardingStatus", label: "Onboarding Status" },
-    { key: "expiresAt", label: "Expires At" },
   ];
 
   const renderOnboardingStatus = (token) => {
@@ -58,7 +57,6 @@ export default function RegistrationTokenTable({ tokens = [] }) {
             )}
           </td>
           <td>{renderOnboardingStatus(token)}</td>
-          <td>{formatDateTime(token.expiresAt)}</td>
         </tr>
       )}
     />

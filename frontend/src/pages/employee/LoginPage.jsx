@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { Alert, Button, Card, Col, Form, Row } from "react-bootstrap";
+
 import { loginSuccess } from "../../features/auth/authSlice";
 import { loginUser } from "../../api/authApi";
 
@@ -52,31 +54,51 @@ export default function LoginPage() {
   };
 
   return (
-    <div>
-      <h1>Login Page</h1>
+    <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light px-3">
+      <Card className="w-100 shadow-sm" style={{ maxWidth: "520px" }}>
+        <Card.Body className="p-4">
+          <h1 className="h3 mb-4">Login Page</h1>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+          {error && (
+            <Alert variant="danger" className="mb-3">
+              {error}
+            </Alert>
+          )}
 
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>Username</label>
-          <input
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-          />
-        </div>
+          <Form onSubmit={handleLogin}>
+            <Row className="g-3">
+              <Col xs={12}>
+                <Form.Group>
+                  <Form.Label>Username</Form.Label>
+                  <Form.Control
+                    value={username}
+                    onChange={(event) => setUsername(event.target.value)}
+                    placeholder="Enter username"
+                  />
+                </Form.Group>
+              </Col>
 
-        <div>
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
-        </div>
+              <Col xs={12}>
+                <Form.Group>
+                  <Form.Label>Password</Form.Label>
+                  <Form.Control
+                    type="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="Enter password"
+                  />
+                </Form.Group>
+              </Col>
 
-        <button type="submit">Login</button>
-      </form>
+              <Col xs={12}>
+                <Button type="submit" variant="primary" className="w-100">
+                  Login
+                </Button>
+              </Col>
+            </Row>
+          </Form>
+        </Card.Body>
+      </Card>
     </div>
   );
 }

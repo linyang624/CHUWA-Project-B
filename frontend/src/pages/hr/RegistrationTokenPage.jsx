@@ -31,7 +31,7 @@ import {
 
   Responsive:
   - Form fields are responsive inside RegistrationTokenForm
-  - Token table is responsive inside RegistrationTokenTable
+  - Token table is responsive inside RegistrationTzokenTable
 */
 export default function RegistrationTokenPage() {
   const dispatch = useDispatch();
