@@ -39,23 +39,70 @@ export default function RegistrationTokenTable({ tokens = [] }) {
       emptyMessage="No registration tokens found."
       renderRow={(token) => (
         <tr key={token._id}>
-          <td>{token.email}</td>
           <td>
-            {token.firstName} {token.lastName}
+            <span
+              style={{
+                color: "#374151",
+                fontWeight: "700",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {token.email}
+            </span>
           </td>
+
+          <td>
+            <span
+              style={{
+                color: "#1f2937",
+                fontWeight: "800",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {token.firstName} {token.lastName}
+            </span>
+          </td>
+
           <td>
             {token.registrationLink ? (
               <a
                 href={token.registrationLink}
                 target="_blank"
                 rel="noreferrer"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: "7px 12px",
+                  borderRadius: "999px",
+                  background: "#eef2ff",
+                  color: "#4f46e5",
+                  fontSize: "12px",
+                  fontWeight: "800",
+                  textDecoration: "none",
+                  whiteSpace: "nowrap",
+                }}
               >
                 Open Link
               </a>
             ) : (
-              "N/A"
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: "7px 12px",
+                  borderRadius: "999px",
+                  background: "#f3f4f6",
+                  color: "#6b7280",
+                  fontSize: "12px",
+                  fontWeight: "800",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                N/A
+              </span>
             )}
           </td>
+
           <td>{renderOnboardingStatus(token)}</td>
         </tr>
       )}

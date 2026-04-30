@@ -78,34 +78,80 @@ export default function VisaInProgressTable({
 
         return (
           <tr key={getVisaStatusId(visaStatus)}>
-            <td>{getLegalFullName(visaStatus)}</td>
+            <td>
+              <span
+                style={{
+                  fontWeight: "800",
+                  color: "#1f2937",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {getLegalFullName(visaStatus)}
+              </span>
+            </td>
 
             <td>
-              <div>
-                <strong>Title:</strong>{" "}
-                {formatVisaTitle(
-                  workAuthorization.visaTitle ||
-                    workAuthorization.title ||
-                    visaStatus.visaTitle,
-                  workAuthorization.otherTitle
-                )}
-              </div>
+              <div
+                className="d-flex flex-column gap-1"
+                style={{
+                  minWidth: "220px",
+                  color: "#4b5563",
+                  fontSize: "13px",
+                  lineHeight: "1.5",
+                }}
+              >
+                <div>
+                  <span style={{ fontWeight: "800", color: "#374151" }}>
+                    Title:
+                  </span>{" "}
+                  {formatVisaTitle(
+                    workAuthorization.visaTitle ||
+                      workAuthorization.title ||
+                      visaStatus.visaTitle,
+                    workAuthorization.otherTitle
+                  )}
+                </div>
 
-              <div>
-                <strong>Start Date:</strong> {formatDate(startDate)}
-              </div>
+                <div>
+                  <span style={{ fontWeight: "800", color: "#374151" }}>
+                    Start Date:
+                  </span>{" "}
+                  {formatDate(startDate)}
+                </div>
 
-              <div>
-                <strong>End Date:</strong> {formatDate(endDate)}
-              </div>
+                <div>
+                  <span style={{ fontWeight: "800", color: "#374151" }}>
+                    End Date:
+                  </span>{" "}
+                  {formatDate(endDate)}
+                </div>
 
-              <div>
-                <strong>Days Remaining:</strong>{" "}
-                {calculateDaysRemaining(endDate)}
+                <div>
+                  <span style={{ fontWeight: "800", color: "#374151" }}>
+                    Days Remaining:
+                  </span>{" "}
+                  {calculateDaysRemaining(endDate)}
+                </div>
               </div>
             </td>
 
-            <td>{getVisaNextStepText(visaStatus)}</td>
+            <td>
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: "7px 12px",
+                  borderRadius: "999px",
+                  background: "#eef2ff",
+                  color: "#4f46e5",
+                  fontSize: "12px",
+                  fontWeight: "800",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {getVisaNextStepText(visaStatus)}
+              </span>
+            </td>
 
             <td>
               <VisaActionCell

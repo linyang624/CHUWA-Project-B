@@ -42,15 +42,43 @@ export default function RegistrationTokenForm({ loading = false, onSubmit }) {
   };
 
   return (
-    <Card className="mb-4">
-      <Card.Body>
-        <Card.Title>Generate Registration Token</Card.Title>
+    <Card
+      className="mb-4 border-0"
+      style={{
+        borderRadius: "20px",
+        boxShadow: "0 10px 24px rgba(15, 23, 42, 0.05)",
+        fontFamily:
+          "Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      }}
+    >
+      <Card.Body className="p-4">
+        <Card.Title
+          className="mb-4"
+          style={{
+            color: "#1f2937",
+            fontSize: "22px",
+            fontWeight: "800",
+            letterSpacing: "-0.04em",
+          }}
+        >
+          Generate Registration Token
+        </Card.Title>
 
         <Form onSubmit={handleSubmit}>
           <Row className="g-3">
             <Col xs={12} md={4}>
               <Form.Group>
-                <Form.Label>Email</Form.Label>
+                <Form.Label
+                  style={{
+                    color: "#374151",
+                    fontSize: "14px",
+                    fontWeight: "800",
+                    marginBottom: "8px",
+                  }}
+                >
+                  Email
+                </Form.Label>
+
                 <Form.Control
                   type="email"
                   name="email"
@@ -58,13 +86,31 @@ export default function RegistrationTokenForm({ loading = false, onSubmit }) {
                   placeholder="employee@example.com"
                   onChange={handleChange}
                   required
+                  style={{
+                    height: "48px",
+                    borderRadius: "14px",
+                    border: "1px solid #d8dee8",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    paddingLeft: "14px",
+                  }}
                 />
               </Form.Group>
             </Col>
 
             <Col xs={12} md={4}>
               <Form.Group>
-                <Form.Label>First Name</Form.Label>
+                <Form.Label
+                  style={{
+                    color: "#374151",
+                    fontSize: "14px",
+                    fontWeight: "800",
+                    marginBottom: "8px",
+                  }}
+                >
+                  First Name
+                </Form.Label>
+
                 <Form.Control
                   type="text"
                   name="firstName"
@@ -72,13 +118,31 @@ export default function RegistrationTokenForm({ loading = false, onSubmit }) {
                   placeholder="First name"
                   onChange={handleChange}
                   required
+                  style={{
+                    height: "48px",
+                    borderRadius: "14px",
+                    border: "1px solid #d8dee8",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    paddingLeft: "14px",
+                  }}
                 />
               </Form.Group>
             </Col>
 
             <Col xs={12} md={4}>
               <Form.Group>
-                <Form.Label>Last Name</Form.Label>
+                <Form.Label
+                  style={{
+                    color: "#374151",
+                    fontSize: "14px",
+                    fontWeight: "800",
+                    marginBottom: "8px",
+                  }}
+                >
+                  Last Name
+                </Form.Label>
+
                 <Form.Control
                   type="text"
                   name="lastName"
@@ -86,13 +150,38 @@ export default function RegistrationTokenForm({ loading = false, onSubmit }) {
                   placeholder="Last name"
                   onChange={handleChange}
                   required
+                  style={{
+                    height: "48px",
+                    borderRadius: "14px",
+                    border: "1px solid #d8dee8",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    paddingLeft: "14px",
+                  }}
                 />
               </Form.Group>
             </Col>
           </Row>
 
-          <div className="mt-3">
-            <Button type="submit" disabled={loading}>
+          <div className="mt-4">
+            <Button
+              type="submit"
+              disabled={loading}
+              style={{
+                minHeight: "46px",
+                borderRadius: "999px",
+                border: "none",
+                background: loading
+                  ? "#a5b4fc"
+                  : "linear-gradient(135deg, #2563eb, #4f46e5)",
+                fontWeight: "800",
+                fontSize: "14px",
+                padding: "10px 20px",
+                boxShadow: loading
+                  ? "none"
+                  : "0 8px 16px rgba(37, 99, 235, 0.18)",
+              }}
+            >
               {loading ? "Generating..." : "Generate token and send email"}
             </Button>
           </div>

@@ -70,21 +70,71 @@ export default function EmployeeProfileTable({ employees = [] }) {
           <tr key={employee._id || employeeId}>
             <td>
               {employeeId ? (
-                <Link to={`/hr/employee-profiles/${employeeId}`}>
+                <Link
+                  to={`/hr/employee-profiles/${employeeId}`}
+                  style={{
+                    color: "#4f46e5",
+                    fontWeight: "800",
+                    textDecoration: "none",
+                    whiteSpace: "nowrap",
+                  }}
+                >
                   {getLegalFullName(employee)}
                 </Link>
               ) : (
-                getLegalFullName(employee)
+                <span
+                  style={{
+                    color: "#1f2937",
+                    fontWeight: "800",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {getLegalFullName(employee)}
+                </span>
               )}
             </td>
 
-            <td>{employee.ssn || "N/A"}</td>
+            <td>
+              <span style={{ whiteSpace: "nowrap" }}>
+                {employee.ssn || "N/A"}
+              </span>
+            </td>
 
-            <td>{getWorkAuthorizationTitle(employee)}</td>
+            <td>
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: "7px 12px",
+                  borderRadius: "999px",
+                  background: "#eef2ff",
+                  color: "#4f46e5",
+                  fontSize: "12px",
+                  fontWeight: "800",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {getWorkAuthorizationTitle(employee)}
+              </span>
+            </td>
 
-            <td>{getPhoneNumber(employee)}</td>
+            <td>
+              <span style={{ whiteSpace: "nowrap" }}>
+                {getPhoneNumber(employee)}
+              </span>
+            </td>
 
-            <td>{getEmail(employee)}</td>
+            <td>
+              <span
+                style={{
+                  color: "#374151",
+                  fontWeight: "600",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {getEmail(employee)}
+              </span>
+            </td>
           </tr>
         );
       }}
