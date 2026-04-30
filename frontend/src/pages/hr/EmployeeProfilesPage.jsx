@@ -70,19 +70,69 @@ export default function EmployeeProfilesPage() {
 
   return (
     <Layout>
-      <h1 className="mb-4">Employee Profiles</h1>
+      <div className="mb-4">
+        <h1
+          className="mb-1"
+          style={{
+            color: "#1f2937",
+            fontSize: "clamp(30px, 4vw, 42px)",
+            fontWeight: "900",
+            letterSpacing: "-0.055em",
+            lineHeight: "1.08",
+          }}
+        >
+          Employee Profiles
+        </h1>
+
+        <p
+          className="mb-0"
+          style={{
+            color: "#6b7280",
+            fontSize: "15px",
+            fontWeight: "600",
+            lineHeight: "1.6",
+          }}
+        >
+          Search and view approved employee profile records.
+        </p>
+      </div>
 
       {error && <Message variant="danger">{error}</Message>}
 
-      <SearchBar
-        value={search}
-        onChange={setSearch}
-        placeholder="Search by first name, last name, or preferred name..."
-      />
+      <div
+        className="mb-3"
+        style={{
+          background: "#ffffff",
+          border: "1px solid #e5e7eb",
+          borderRadius: "20px",
+          padding: "18px",
+          boxShadow: "0 10px 24px rgba(15, 23, 42, 0.05)",
+          fontFamily:
+            "Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        }}
+      >
+        <SearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Search by first name, last name, or preferred name..."
+        />
 
-      {getResultMessage() && (
-        <p className="mb-3">{getResultMessage()}</p>
-      )}
+        {getResultMessage() && (
+          <div
+            className="d-inline-flex align-items-center"
+            style={{
+              padding: "7px 12px",
+              borderRadius: "999px",
+              background: "#eef2ff",
+              color: "#4f46e5",
+              fontSize: "12px",
+              fontWeight: "800",
+            }}
+          >
+            {getResultMessage()}
+          </div>
+        )}
+      </div>
 
       {loading ? (
         <Loading text="Loading employees..." />

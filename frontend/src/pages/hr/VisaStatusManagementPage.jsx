@@ -188,7 +188,32 @@ export default function VisaStatusManagementPage() {
 
   return (
     <Layout>
-      <h1 className="mb-4">Visa Status Management</h1>
+      <div className="mb-4">
+        <h1
+          className="mb-1"
+          style={{
+            color: "#1f2937",
+            fontSize: "clamp(30px, 4vw, 42px)",
+            fontWeight: "900",
+            letterSpacing: "-0.055em",
+            lineHeight: "1.08",
+          }}
+        >
+          Visa Status Management
+        </h1>
+
+        <p
+          className="mb-0"
+          style={{
+            color: "#6b7280",
+            fontSize: "15px",
+            fontWeight: "600",
+            lineHeight: "1.6",
+          }}
+        >
+          Review OPT/F1 visa document progress, approve uploaded documents, and send reminders.
+        </p>
+      </div>
 
       {error && <Message variant="danger">{error}</Message>}
       {successMessage && <Message variant="success">{successMessage}</Message>}
@@ -196,7 +221,18 @@ export default function VisaStatusManagementPage() {
       <VisaStatusTabs activeTab={activeTab} onChange={setActiveTab} />
 
       {activeTab === "all" && (
-        <>
+        <div
+          className="mb-3"
+          style={{
+            background: "#ffffff",
+            border: "1px solid #e5e7eb",
+            borderRadius: "20px",
+            padding: "18px",
+            boxShadow: "0 10px 24px rgba(15, 23, 42, 0.05)",
+            fontFamily:
+              "Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          }}
+        >
           <SearchBar
             value={search}
             onChange={setSearch}
@@ -204,9 +240,21 @@ export default function VisaStatusManagementPage() {
           />
 
           {getAllResultMessage() && (
-            <p className="mb-3">{getAllResultMessage()}</p>
+            <div
+              className="d-inline-flex align-items-center"
+              style={{
+                padding: "7px 12px",
+                borderRadius: "999px",
+                background: "#eef2ff",
+                color: "#4f46e5",
+                fontSize: "12px",
+                fontWeight: "800",
+              }}
+            >
+              {getAllResultMessage()}
+            </div>
           )}
-        </>
+        </div>
       )}
 
       {loading ? (

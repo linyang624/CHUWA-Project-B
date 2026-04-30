@@ -46,7 +46,32 @@ export default function HRHomePage() {
 
   return (
     <Layout>
-      <h1 className="mb-4">HR Dashboard</h1>
+      <div className="mb-4">
+        <h1
+          className="mb-1"
+          style={{
+            color: "#1f2937",
+            fontSize: "clamp(30px, 4vw, 42px)",
+            fontWeight: "900",
+            letterSpacing: "-0.055em",
+            lineHeight: "1.08",
+          }}
+        >
+          HR Dashboard
+        </h1>
+
+        <p
+          className="mb-0"
+          style={{
+            color: "#6b7280",
+            fontSize: "15px",
+            fontWeight: "600",
+            lineHeight: "1.6",
+          }}
+        >
+          Review onboarding progress, employee profiles, and visa status updates.
+        </p>
+      </div>
 
       {error && <Message variant="danger">{error}</Message>}
 
