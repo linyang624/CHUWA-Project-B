@@ -72,19 +72,31 @@ export default function Header() {
   const renderHrLinks = () => {
     return (
       <>
-        <Nav.Link as={NavLink} to="/hr/home">
+        <Nav.Link as={NavLink} to="/hr/home" className="chuwa-nav-link">
           Home
         </Nav.Link>
 
-        <Nav.Link as={NavLink} to="/hr/employee-profiles">
+        <Nav.Link
+          as={NavLink}
+          to="/hr/employee-profiles"
+          className="chuwa-nav-link"
+        >
           Employee Profiles
         </Nav.Link>
 
-        <Nav.Link as={NavLink} to="/hr/visa-status-management">
+        <Nav.Link
+          as={NavLink}
+          to="/hr/visa-status-management"
+          className="chuwa-nav-link"
+        >
           Visa Status Management
         </Nav.Link>
 
-        <Nav.Link as={NavLink} to="/hr/hiring-management">
+        <Nav.Link
+          as={NavLink}
+          to="/hr/hiring-management"
+          className="chuwa-nav-link"
+        >
           Hiring Management
         </Nav.Link>
       </>
@@ -108,11 +120,11 @@ export default function Header() {
 
     return (
       <>
-        <Nav.Link as={NavLink} to="/personal-info">
+        <Nav.Link as={NavLink} to="/personal-info" className="chuwa-nav-link">
           Personal Information
         </Nav.Link>
 
-        <Nav.Link as={NavLink} to="/visa-status">
+        <Nav.Link as={NavLink} to="/visa-status" className="chuwa-nav-link">
           Visa Status
         </Nav.Link>
       </>
@@ -129,42 +141,173 @@ export default function Header() {
 
   const homePath = getHomePath();
 
+  const brandContent = (
+    <div className="d-flex align-items-center gap-2">
+      <div
+        className="d-flex align-items-center justify-content-center"
+        style={{
+          width: "82px",
+          height: "40px",
+          borderRadius: "14px",
+          background: "linear-gradient(135deg, #2563eb, #7c3aed)",
+          color: "#ffffff",
+          fontWeight: "800",
+          fontSize: "16px",
+          letterSpacing: "-0.03em",
+          boxShadow: "0 8px 18px rgba(79, 70, 229, 0.22)",
+        }}
+      >
+        Chuwa
+      </div>
+
+      <span
+        className="d-none d-sm-inline"
+        style={{
+          color: "#1f2937",
+          fontWeight: "800",
+          fontSize: "17px",
+          letterSpacing: "-0.03em",
+        }}
+      >
+        Employee Management
+      </span>
+    </div>
+  );
+
   return (
-    <Navbar expand="md" bg="light" className="border-bottom">
-      <Container fluid>
-        {/* 
-          Brand / company name.
+    <>
+      <Navbar
+        expand="md"
+        className="border-bottom"
+        style={{
+          background: "rgba(255, 255, 255, 0.92)",
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
+          borderColor: "#e5e7eb",
+          minHeight: "72px",
+          boxShadow: "0 4px 18px rgba(15, 23, 42, 0.04)",
+          fontFamily:
+            "Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        }}
+      >
+        <Container fluid className="px-3 px-md-4">
+          {homePath ? (
+            <Navbar.Brand
+              as={Link}
+              to={homePath}
+              className="me-3 py-0"
+              style={{
+                textDecoration: "none",
+              }}
+            >
+              {brandContent}
+            </Navbar.Brand>
+          ) : (
+            <Navbar.Brand
+              className="me-3 py-0"
+              style={{
+                cursor: "default",
+              }}
+            >
+              {brandContent}
+            </Navbar.Brand>
+          )}
 
-          If homePath exists, it is clickable.
-          If homePath is null, it becomes plain text and does not navigate.
-        */}
-        {homePath ? (
-          <Navbar.Brand as={Link} to={homePath}>
-            Chuwa Employee Management
-          </Navbar.Brand>
-        ) : (
-          <Navbar.Brand style={{ cursor: "default" }}>
-            Chuwa Employee Management
-          </Navbar.Brand>
-        )}
+          <Navbar.Toggle
+            aria-controls="main-navbar-nav"
+            style={{
+              border: "1px solid #d8dee8",
+              borderRadius: "12px",
+              padding: "6px 9px",
+              boxShadow: "none",
+            }}
+          />
 
-        <Navbar.Toggle aria-controls="main-navbar-nav" />
+          <Navbar.Collapse id="main-navbar-nav">
+            <Nav className="me-auto align-items-md-center mt-3 mt-md-0 gap-md-1">
+              {isHr && renderHrLinks()}
+              {isEmployee && renderEmployeeLinks()}
+            </Nav>
 
-        <Navbar.Collapse id="main-navbar-nav">
-          <Nav className="me-auto">
-            {isHr && renderHrLinks()}
-            {isEmployee && renderEmployeeLinks()}
-          </Nav>
+            <div className="d-flex align-items-center gap-2 mt-3 mt-md-0">
+              <div
+                className="d-flex align-items-center justify-content-center"
+                style={{
+                  width: "34px",
+                  height: "34px",
+                  borderRadius: "50%",
+                  background: "#eef2ff",
+                  color: "#4f46e5",
+                  fontSize: "14px",
+                  fontWeight: "800",
+                  flexShrink: 0,
+                }}
+              >
+                {(user?.username || "U").charAt(0).toUpperCase()}
+              </div>
 
-          <div className="d-flex align-items-center gap-2 mt-3 mt-md-0">
-            <span>{user?.username}</span>
+              <span
+                className="text-truncate"
+                style={{
+                  maxWidth: "150px",
+                  color: "#374151",
+                  fontWeight: "700",
+                  fontSize: "14px",
+                }}
+              >
+                {user?.username}
+              </span>
 
-            <Button variant="outline-secondary" size="sm" onClick={handleLogout}>
-              Logout
-            </Button>
-          </div>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={handleLogout}
+                style={{
+                  borderRadius: "999px",
+                  padding: "6px 14px",
+                  fontWeight: "700",
+                  fontSize: "13px",
+                  borderColor: "#d8dee8",
+                  color: "#374151",
+                  background: "#ffffff",
+                }}
+              >
+                Logout
+              </Button>
+            </div>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+
+      <style>
+        {`
+          .chuwa-nav-link {
+            color: #4b5563 !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            padding: 8px 12px !important;
+            border-radius: 999px !important;
+            transition: all 0.18s ease;
+          }
+
+          .chuwa-nav-link:hover {
+            color: #4f46e5 !important;
+            background: #eef2ff !important;
+          }
+
+          .chuwa-nav-link.active {
+            color: #4f46e5 !important;
+            background: #eef2ff !important;
+          }
+
+          @media (max-width: 767px) {
+            .chuwa-nav-link {
+              border-radius: 12px !important;
+              padding: 10px 12px !important;
+            }
+          }
+        `}
+      </style>
+    </>
   );
 }
