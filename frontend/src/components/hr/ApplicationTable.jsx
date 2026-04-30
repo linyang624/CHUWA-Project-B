@@ -1,7 +1,6 @@
 import { Button } from "react-bootstrap";
 
 import DataTable from "../common/DataTable";
-import { getLegalFullName } from "../../utils/formatName";
 
 /*
   ApplicationTable
@@ -34,10 +33,7 @@ export default function ApplicationTable({ applications = [] }) {
   const handleViewApplication = (application) => {
     const applicationId = getApplicationId(application);
 
-    window.open(
-      `/hr/hiring-management/applications/${applicationId}`,
-      "_blank"
-    );
+    window.open(`/hr/hiring-management/applications/${applicationId}`, "_blank");
   };
 
   return (
@@ -88,16 +84,9 @@ export default function ApplicationTable({ applications = [] }) {
               variant="outline-primary"
               size="sm"
               onClick={() => handleViewApplication(application)}
+              className="fw-bold text-nowrap px-3"
               style={{
-                borderRadius: "999px",
-                borderColor: "#c7d2fe",
-                color: "#4f46e5",
-                background: "#ffffff",
                 fontSize: "12px",
-                fontWeight: "800",
-                padding: "7px 14px",
-                boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
-                whiteSpace: "nowrap",
               }}
             >
               View Application

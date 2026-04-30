@@ -135,7 +135,10 @@ export default function ApplicationDetailPage() {
         <Button
           variant="outline-secondary"
           onClick={() => navigate("/hr/hiring-management/onboarding-review")}
-          style={outlineSecondaryButtonStyle}
+          className="fw-bold text-nowrap px-3"
+          style={{
+            fontSize: "13px",
+          }}
         >
           Back to Application Review
         </Button>
@@ -166,7 +169,10 @@ export default function ApplicationDetailPage() {
                 variant="success"
                 onClick={() => setShowApproveModal(true)}
                 disabled={loading}
-                style={approveButtonStyle}
+                className="fw-bold px-4"
+                style={{
+                  fontSize: "14px",
+                }}
               >
                 Approve
               </Button>
@@ -175,7 +181,10 @@ export default function ApplicationDetailPage() {
                 variant="danger"
                 onClick={() => setShowRejectModal(true)}
                 disabled={loading}
-                style={rejectButtonStyle}
+                className="fw-bold px-4"
+                style={{
+                  fontSize: "14px",
+                }}
               >
                 Reject
               </Button>
@@ -209,35 +218,3 @@ export default function ApplicationDetailPage() {
     </Layout>
   );
 }
-
-const outlineSecondaryButtonStyle = {
-  borderRadius: "999px",
-  borderColor: "#d8dee8",
-  color: "#374151",
-  background: "#ffffff",
-  fontSize: "13px",
-  fontWeight: "800",
-  padding: "8px 16px",
-  boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
-  whiteSpace: "nowrap",
-};
-
-const approveButtonStyle = {
-  borderRadius: "999px",
-  border: "none",
-  background: "#16a34a",
-  fontSize: "14px",
-  fontWeight: "800",
-  padding: "9px 22px",
-  boxShadow: "0 8px 16px rgba(22, 163, 74, 0.18)",
-};
-
-const rejectButtonStyle = {
-  borderRadius: "999px",
-  border: "none",
-  background: "#dc2626",
-  fontSize: "14px",
-  fontWeight: "800",
-  padding: "9px 22px",
-  boxShadow: "0 8px 16px rgba(220, 38, 38, 0.18)",
-};

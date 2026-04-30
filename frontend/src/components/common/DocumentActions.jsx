@@ -39,19 +39,13 @@ export default function DocumentActions({
   if (!hasDocument(document)) {
     return (
       <span
+        className="badge rounded-pill"
         style={{
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "30px",
-          padding: "4px 10px",
-          borderRadius: "999px",
           background: "#f3f4f6",
           color: "#6b7280",
           fontSize: "12px",
           fontWeight: "700",
-          fontFamily:
-            "Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          padding: "7px 10px",
         }}
       >
         N/A
@@ -71,18 +65,10 @@ export default function DocumentActions({
   };
 
   return (
-    <ButtonGroup
-      size="sm"
-      style={{
-        borderRadius: "999px",
-        overflow: "hidden",
-        boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
-        fontFamily:
-          "Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-      }}
-    >
+    <ButtonGroup size="sm">
       {showPreview && (
         <Button
+          type="button"
           variant="outline-primary"
           onClick={handlePreview}
           style={{
@@ -100,6 +86,7 @@ export default function DocumentActions({
 
       {showDownload && (
         <Button
+          type="button"
           variant="outline-secondary"
           onClick={handleDownload}
           style={{

@@ -106,15 +106,7 @@ export default function DocumentItem({ title, document }) {
         </div>
       </div>
 
-      <ButtonGroup
-        size="sm"
-        style={{
-          borderRadius: "999px",
-          overflow: "hidden",
-          boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
-          flexShrink: 0,
-        }}
-      >
+      <ButtonGroup size="sm" style={{ flexShrink: 0 }}>
         <Button
           type="button"
           variant="outline-primary"

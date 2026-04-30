@@ -25,6 +25,7 @@ export default function DataTable({
 }) {
   return (
     <div
+      className="chuwa-data-table"
       style={{
         background: "#ffffff",
         border: "1px solid #e5e7eb",
@@ -84,18 +85,18 @@ export default function DataTable({
 
       <style>
         {`
-          table tbody td {
+          .chuwa-data-table table tbody td {
             padding: 14px 16px !important;
             color: #374151;
             font-size: 14px;
             border-bottom: 1px solid #eef2f7 !important;
           }
 
-          table tbody tr:last-child td {
+          .chuwa-data-table table tbody tr:last-child td {
             border-bottom: none !important;
           }
 
-          table tbody tr:hover td {
+          .chuwa-data-table table tbody tr:hover td {
             background-color: #f8fafc !important;
           }
         `}

@@ -166,21 +166,9 @@ export default function RegistrationTokenForm({ loading = false, onSubmit }) {
           <div className="mt-4">
             <Button
               type="submit"
+              variant="primary"
               disabled={loading}
-              style={{
-                minHeight: "46px",
-                borderRadius: "999px",
-                border: "none",
-                background: loading
-                  ? "#a5b4fc"
-                  : "linear-gradient(135deg, #2563eb, #4f46e5)",
-                fontWeight: "800",
-                fontSize: "14px",
-                padding: "10px 20px",
-                boxShadow: loading
-                  ? "none"
-                  : "0 8px 16px rgba(37, 99, 235, 0.18)",
-              }}
+              className="fw-bold px-4 py-2"
             >
               {loading ? "Generating..." : "Generate token and send email"}
             </Button>

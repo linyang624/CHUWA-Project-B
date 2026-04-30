@@ -17,7 +17,7 @@ export default function VisaStatusTabs({ activeTab, onChange }) {
     <>
       <Nav
         activeKey={activeTab}
-        className="mb-4 d-flex flex-wrap gap-2"
+        className="chuwa-visa-tabs mb-4 d-flex flex-wrap gap-2"
         style={{
           background: "#ffffff",
           border: "1px solid #e5e7eb",
@@ -51,24 +51,24 @@ export default function VisaStatusTabs({ activeTab, onChange }) {
 
       <style>
         {`
-          .chuwa-visa-tab {
-            border-radius: 999px !important;
-            border: none !important;
-            color: #4b5563 !important;
-            font-size: 14px !important;
-            font-weight: 800 !important;
-            padding: 9px 18px !important;
+          .chuwa-visa-tabs .chuwa-visa-tab {
+            border-radius: 999px;
+            border: none;
+            color: #4b5563;
+            font-size: 14px;
+            font-weight: 800;
+            padding: 9px 18px;
             transition: all 0.18s ease;
           }
 
-          .chuwa-visa-tab:hover {
-            background: #eef2ff !important;
-            color: #4f46e5 !important;
+          .chuwa-visa-tabs .chuwa-visa-tab:hover {
+            background: #eef2ff;
+            color: #4f46e5;
           }
 
-          .chuwa-visa-tab.active {
-            background: linear-gradient(135deg, #2563eb, #4f46e5) !important;
-            color: #ffffff !important;
+          .chuwa-visa-tabs .chuwa-visa-tab.active {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: #ffffff;
             box-shadow: 0 8px 16px rgba(37, 99, 235, 0.18);
           }
         `}

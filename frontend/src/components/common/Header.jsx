@@ -195,10 +195,7 @@ export default function Header() {
             <Navbar.Brand
               as={Link}
               to={homePath}
-              className="me-3 py-0"
-              style={{
-                textDecoration: "none",
-              }}
+              className="me-3 py-0 text-decoration-none"
             >
               {brandContent}
             </Navbar.Brand>
@@ -213,15 +210,7 @@ export default function Header() {
             </Navbar.Brand>
           )}
 
-          <Navbar.Toggle
-            aria-controls="main-navbar-nav"
-            style={{
-              border: "1px solid #d8dee8",
-              borderRadius: "12px",
-              padding: "6px 9px",
-              boxShadow: "none",
-            }}
-          />
+          <Navbar.Toggle aria-controls="main-navbar-nav" />
 
           <Navbar.Collapse id="main-navbar-nav">
             <Nav className="me-auto align-items-md-center mt-3 mt-md-0 gap-md-1">
@@ -262,15 +251,7 @@ export default function Header() {
                 variant="outline-secondary"
                 size="sm"
                 onClick={handleLogout}
-                style={{
-                  borderRadius: "999px",
-                  padding: "6px 14px",
-                  fontWeight: "700",
-                  fontSize: "13px",
-                  borderColor: "#d8dee8",
-                  color: "#374151",
-                  background: "#ffffff",
-                }}
+                className="fw-bold px-3"
               >
                 Logout
               </Button>
@@ -282,28 +263,28 @@ export default function Header() {
       <style>
         {`
           .chuwa-nav-link {
-            color: #4b5563 !important;
-            font-weight: 700 !important;
-            font-size: 14px !important;
-            padding: 8px 12px !important;
-            border-radius: 999px !important;
+            color: #4b5563;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 999px;
             transition: all 0.18s ease;
           }
 
           .chuwa-nav-link:hover {
-            color: #4f46e5 !important;
-            background: #eef2ff !important;
+            color: #4f46e5;
+            background: #eef2ff;
           }
 
           .chuwa-nav-link.active {
-            color: #4f46e5 !important;
-            background: #eef2ff !important;
+            color: #4f46e5;
+            background: #eef2ff;
           }
 
           @media (max-width: 767px) {
             .chuwa-nav-link {
-              border-radius: 12px !important;
-              padding: 10px 12px !important;
+              border-radius: 12px;
+              padding: 10px 12px;
             }
           }
         `}

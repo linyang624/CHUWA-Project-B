@@ -10,6 +10,7 @@ import {
   getMyApplication,
 } from "../../api/onboardingApi";
 import Layout from "../../components/common/Layout";
+import DocumentActions from "../../components/common/DocumentActions";
 
 const DEFAULT_AVATAR_URL = "http://localhost:5001/uploads/default_photo.jpg";
 
@@ -58,6 +59,11 @@ export default function OnboardingApplicationPage() {
   const watchedProfilePicture = watch("profilePicture");
   const watchedDriverLicense = watch("driverLicense");
   const watchedWorkAuthDocument = watch("optReceipt");
+
+  const existingProfilePicture = application?.profilePicture || null;
+  const existingDriverLicense = application?.driverLicense || null;
+  const existingWorkAuthDocument =
+    application?.workAuthorization?.optReceipt || application?.optReceipt || null;
 
   /*
     Fill the form again when a rejected application is returned.
@@ -222,7 +228,14 @@ export default function OnboardingApplicationPage() {
     const file = event.target.files?.[0];
 
     if (!file) {
-      setProfilePreview(DEFAULT_AVATAR_URL);
+      if (existingProfilePicture?.fileName) {
+        setProfilePreview(
+          `http://localhost:5001/uploads/${existingProfilePicture.fileName}`
+        );
+      } else {
+        setProfilePreview(DEFAULT_AVATAR_URL);
+      }
+
       return;
     }
 
@@ -725,7 +738,7 @@ export default function OnboardingApplicationPage() {
                 <Col xs={12}>
                   <FormField
                     label="Work Authorization Document *"
-                    helpText="For F1 CPT/OPT users, please upload OPT Receipt."
+                    helpText="For F1 CPT/OPT users, please upload OPT Receipt. If you select a new file, it will replace the previous one."
                     error={errors.optReceipt?.message}
                   >
                     <Form.Control
@@ -735,6 +748,7 @@ export default function OnboardingApplicationPage() {
                         validate: (files) => {
                           if (
                             isPR === "no" &&
+                            !existingWorkAuthDocument &&
                             (!files || files.length === 0)
                           ) {
                             return "Work authorization document is required";
@@ -927,7 +941,8 @@ export default function OnboardingApplicationPage() {
                   relationship: "",
                 })
               }
-              style={outlinePrimaryButtonStyle}
+              className="fw-bold px-3"
+              style={{ fontSize: "12px" }}
             >
               Add Contact
             </Button>
@@ -963,7 +978,8 @@ export default function OnboardingApplicationPage() {
                       size="sm"
                       variant="outline-danger"
                       onClick={() => removeEmergencyContact(index)}
-                      style={outlineDangerButtonStyle}
+                      className="fw-bold px-3"
+                      style={{ fontSize: "12px" }}
                     >
                       Remove
                     </Button>
@@ -1065,8 +1081,8 @@ export default function OnboardingApplicationPage() {
           ))}
         </SectionCard>
 
-        {/* Upload Summary */}
-        <SectionCard title="Selected Upload Summary">
+        {/* Upload Documents Summary */}
+        <SectionCard title="Upload Documents Summary">
           <p
             className="mb-3"
             style={{
@@ -1076,30 +1092,42 @@ export default function OnboardingApplicationPage() {
               lineHeight: "1.5",
             }}
           >
-            Please review selected files before submitting your application.
+            Review your uploaded documents before submitting. If you select a
+            new file, it will replace the previous file after submission.
           </p>
 
           <Row className="g-3">
-            <SummaryItem
+            <UploadSummaryItem
               label="Profile Picture"
               fileList={watchedProfilePicture}
+              existingDocument={existingProfilePicture}
             />
 
-            <SummaryItem label="Driver License" fileList={watchedDriverLicense} />
+            <UploadSummaryItem
+              label="Driver License"
+              fileList={watchedDriverLicense}
+              existingDocument={existingDriverLicense}
+            />
 
-            <SummaryItem
+            <UploadSummaryItem
               label={
                 visaTitle === "f1_cpt_opt"
                   ? "OPT Receipt"
                   : "Work Authorization Document"
               }
               fileList={watchedWorkAuthDocument}
+              existingDocument={existingWorkAuthDocument}
             />
           </Row>
         </SectionCard>
 
         <div className="d-flex justify-content-end mb-4">
-          <Button type="submit" variant="primary" style={primaryButtonStyle}>
+          <Button
+            type="submit"
+            variant="primary"
+            className="fw-bold px-4 py-2"
+            style={{ fontSize: "14px" }}
+          >
             Submit Application
           </Button>
         </div>
@@ -1108,13 +1136,13 @@ export default function OnboardingApplicationPage() {
   );
 }
 
-function SummaryItem({ label, fileList }) {
+function UploadSummaryItem({ label, fileList, existingDocument }) {
   const file = getSelectedFile(fileList);
   const [fileUrl, setFileUrl] = useState("");
 
   /*
-    Create a temporary browser URL for the selected local file.
-    This lets the employee preview and download before final submit.
+    If the user selects a new file, create a temporary browser URL.
+    This new file will replace the existing document after submit.
   */
   useEffect(() => {
     if (!file) {
@@ -1163,55 +1191,93 @@ function SummaryItem({ label, fileList }) {
           {label}
         </div>
 
-        <div
-          className="mb-3 text-truncate"
-          style={{
-            color: file ? "#1f2937" : "#9ca3af",
-            fontSize: "13px",
-            fontWeight: "700",
-          }}
-        >
-          {file ? file.name : "No file selected"}
-        </div>
-
-        {file && (
-          <div className="d-flex flex-wrap gap-2">
-            <Button
-              type="button"
-              size="sm"
-              variant="outline-primary"
-              onClick={handlePreview}
-              disabled={!canPreview}
-              style={outlinePrimaryButtonStyle}
+        {file ? (
+          <>
+            <div
+              className="mb-3 text-truncate"
+              style={{
+                color: "#1f2937",
+                fontSize: "13px",
+                fontWeight: "700",
+              }}
             >
-              Preview
-            </Button>
+              New file selected: {file.name}
+            </div>
 
-            <Button
-              as="a"
-              href={fileUrl}
-              download={file.name}
-              size="sm"
-              variant="outline-secondary"
-              style={outlineSecondaryButtonStyle}
+            <div className="d-flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline-primary"
+                onClick={handlePreview}
+                disabled={!canPreview}
+                className="fw-bold px-3"
+                style={{ fontSize: "12px" }}
+              >
+                Preview
+              </Button>
+
+              <Button
+                as="a"
+                href={fileUrl}
+                download={file.name}
+                size="sm"
+                variant="outline-secondary"
+                className="fw-bold px-3"
+                style={{ fontSize: "12px" }}
+              >
+                Download
+              </Button>
+            </div>
+
+            {!canPreview && (
+              <Form.Text
+                style={{
+                  color: "#6b7280",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  marginTop: "8px",
+                  display: "block",
+                }}
+              >
+                Preview is only available for images and PDF files.
+              </Form.Text>
+            )}
+          </>
+        ) : existingDocument ? (
+          <>
+            <div
+              className="mb-3"
+              style={{
+                color: "#6b7280",
+                fontSize: "13px",
+                fontWeight: "700",
+              }}
             >
-              Download
-            </Button>
-          </div>
-        )}
+              Current uploaded file
+            </div>
 
-        {file && !canPreview && (
-          <Form.Text
+            <DocumentActions
+              document={existingDocument}
+              showPreview={true}
+              showDownload={true}
+            />
+          </>
+        ) : (
+          <div
             style={{
+              display: "inline-flex",
+              alignItems: "center",
+              padding: "7px 12px",
+              borderRadius: "999px",
+              background: "#f3f4f6",
               color: "#6b7280",
               fontSize: "12px",
-              fontWeight: "600",
-              marginTop: "8px",
-              display: "block",
+              fontWeight: "800",
             }}
           >
-            Preview is only available for images and PDF files.
-          </Form.Text>
+            No file uploaded
+          </div>
         )}
       </div>
     </Col>
@@ -1356,47 +1422,4 @@ const fileInputStyle = {
   fontWeight: "500",
   padding: "10px 14px",
   boxShadow: "none",
-};
-
-const primaryButtonStyle = {
-  minHeight: "48px",
-  borderRadius: "999px",
-  border: "none",
-  background: "linear-gradient(135deg, #2563eb, #4f46e5)",
-  fontWeight: "800",
-  fontSize: "14px",
-  padding: "10px 22px",
-  boxShadow: "0 8px 16px rgba(37, 99, 235, 0.18)",
-};
-
-const outlinePrimaryButtonStyle = {
-  borderRadius: "999px",
-  borderColor: "#c7d2fe",
-  color: "#4f46e5",
-  background: "#ffffff",
-  fontSize: "12px",
-  fontWeight: "800",
-  padding: "7px 14px",
-  boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
-};
-
-const outlineSecondaryButtonStyle = {
-  borderRadius: "999px",
-  borderColor: "#d8dee8",
-  color: "#374151",
-  background: "#ffffff",
-  fontSize: "12px",
-  fontWeight: "800",
-  padding: "7px 14px",
-  boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
-};
-
-const outlineDangerButtonStyle = {
-  borderRadius: "999px",
-  borderColor: "#fecaca",
-  color: "#dc2626",
-  background: "#ffffff",
-  fontSize: "12px",
-  fontWeight: "800",
-  padding: "7px 14px",
 };

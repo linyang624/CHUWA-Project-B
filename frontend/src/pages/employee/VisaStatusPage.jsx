@@ -507,7 +507,13 @@ export default function VisaStatusPage() {
             />
           </Form.Group>
 
-          <Button type="button" variant="primary" onClick={handleUpload} style={primaryButtonStyle}>
+          <Button
+            type="button"
+            variant="primary"
+            onClick={handleUpload}
+            className="fw-bold px-4 py-2"
+            style={{ fontSize: "14px" }}
+          >
             Upload
           </Button>
         </SectionCard>
@@ -608,7 +614,8 @@ function TemplateCard({ title, description, href, buttonText }) {
           rel="noreferrer"
           variant="outline-primary"
           size="sm"
-          style={outlinePrimaryButtonStyle}
+          className="fw-bold px-3 text-nowrap"
+          style={{ fontSize: "12px" }}
         >
           {buttonText}
         </Button>
@@ -627,7 +634,6 @@ function StepBadge({ status }) {
           padding: "7px 12px",
           fontSize: "12px",
           fontWeight: "800",
-          borderRadius: "999px",
         }}
       >
         Completed
@@ -645,7 +651,6 @@ function StepBadge({ status }) {
           padding: "7px 12px",
           fontSize: "12px",
           fontWeight: "800",
-          borderRadius: "999px",
         }}
       >
         Pending
@@ -662,7 +667,6 @@ function StepBadge({ status }) {
           padding: "7px 12px",
           fontSize: "12px",
           fontWeight: "800",
-          borderRadius: "999px",
         }}
       >
         Rejected
@@ -679,7 +683,6 @@ function StepBadge({ status }) {
           padding: "7px 12px",
           fontSize: "12px",
           fontWeight: "800",
-          borderRadius: "999px",
         }}
       >
         Current
@@ -695,7 +698,6 @@ function StepBadge({ status }) {
         padding: "7px 12px",
         fontSize: "12px",
         fontWeight: "800",
-        borderRadius: "999px",
       }}
     >
       Not Started
@@ -710,27 +712,4 @@ const fileInputStyle = {
   fontWeight: "500",
   padding: "10px 14px",
   boxShadow: "none",
-};
-
-const primaryButtonStyle = {
-  minHeight: "46px",
-  borderRadius: "999px",
-  border: "none",
-  background: "linear-gradient(135deg, #2563eb, #4f46e5)",
-  fontWeight: "800",
-  fontSize: "14px",
-  padding: "9px 22px",
-  boxShadow: "0 8px 16px rgba(37, 99, 235, 0.18)",
-};
-
-const outlinePrimaryButtonStyle = {
-  borderRadius: "999px",
-  borderColor: "#c7d2fe",
-  color: "#4f46e5",
-  background: "#ffffff",
-  fontSize: "12px",
-  fontWeight: "800",
-  padding: "7px 14px",
-  boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
-  whiteSpace: "nowrap",
 };

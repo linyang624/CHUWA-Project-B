@@ -194,15 +194,11 @@ export default function LoginPage() {
               <Col xs={12}>
                 <Button
                   type="submit"
-                  className="w-100 mt-2"
+                  variant="primary"
+                  className="w-100 mt-2 fw-bold"
                   style={{
                     height: "52px",
-                    borderRadius: "14px",
-                    border: "none",
-                    background: "linear-gradient(135deg, #2563eb, #4f46e5)",
-                    fontWeight: "700",
                     fontSize: "16px",
-                    boxShadow: "0 10px 18px rgba(37, 99, 235, 0.22)",
                   }}
                 >
                   Login

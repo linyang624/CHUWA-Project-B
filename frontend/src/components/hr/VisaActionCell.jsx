@@ -52,14 +52,7 @@ export default function VisaActionCell({
           showDownload={false}
         />
 
-        <ButtonGroup
-          size="sm"
-          style={{
-            borderRadius: "999px",
-            overflow: "hidden",
-            boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
-          }}
-        >
+        <ButtonGroup size="sm">
           <Button
             variant="outline-success"
             onClick={() => onApproveDocument(currentDocumentId)}
@@ -67,7 +60,6 @@ export default function VisaActionCell({
               fontSize: "12px",
               fontWeight: "800",
               padding: "6px 12px",
-              background: "#ffffff",
             }}
           >
             Approve
@@ -80,7 +72,6 @@ export default function VisaActionCell({
               fontSize: "12px",
               fontWeight: "800",
               padding: "6px 12px",
-              background: "#ffffff",
             }}
           >
             Reject
@@ -96,16 +87,9 @@ export default function VisaActionCell({
         size="sm"
         variant="outline-primary"
         onClick={() => onSendNotification(visaStatus)}
+        className="fw-bold text-nowrap px-3"
         style={{
-          borderRadius: "999px",
-          borderColor: "#c7d2fe",
-          color: "#4f46e5",
-          background: "#ffffff",
           fontSize: "12px",
-          fontWeight: "800",
-          padding: "7px 14px",
-          boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
-          whiteSpace: "nowrap",
         }}
       >
         Send Notification

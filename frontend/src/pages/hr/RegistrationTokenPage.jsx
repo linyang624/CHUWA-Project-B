@@ -98,7 +98,10 @@ export default function RegistrationTokenPage() {
         <Button
           variant="outline-secondary"
           onClick={() => navigate("/hr/hiring-management")}
-          style={outlineSecondaryButtonStyle}
+          className="fw-bold text-nowrap px-3"
+          style={{
+            fontSize: "13px",
+          }}
         >
           Back to Hiring Management
         </Button>
@@ -166,15 +169,3 @@ export default function RegistrationTokenPage() {
     </Layout>
   );
 }
-
-const outlineSecondaryButtonStyle = {
-  borderRadius: "999px",
-  borderColor: "#d8dee8",
-  color: "#374151",
-  background: "#ffffff",
-  fontSize: "13px",
-  fontWeight: "800",
-  padding: "8px 16px",
-  boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
-  whiteSpace: "nowrap",
-};

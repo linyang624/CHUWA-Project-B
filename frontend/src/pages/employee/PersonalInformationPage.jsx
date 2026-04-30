@@ -210,7 +210,8 @@ export default function PersonalInformationPage() {
                   gender: profile.gender,
                 })
               }
-              style={outlinePrimaryButtonStyle}
+              className="fw-bold px-3 text-nowrap"
+              style={{ fontSize: "12px" }}
             >
               Edit
             </Button>
@@ -287,10 +288,8 @@ export default function PersonalInformationPage() {
                   variant="outline-primary"
                   onClick={handleUploadProfilePicture}
                   disabled={!profilePictureFile}
-                  style={{
-                    ...outlinePrimaryButtonStyle,
-                    opacity: !profilePictureFile ? 0.65 : 1,
-                  }}
+                  className="fw-bold px-3"
+                  style={{ fontSize: "12px" }}
                 >
                   Upload New Picture
                 </Button>
@@ -422,7 +421,8 @@ export default function PersonalInformationPage() {
                   address: profile.address,
                 })
               }
-              style={outlinePrimaryButtonStyle}
+              className="fw-bold px-3 text-nowrap"
+              style={{ fontSize: "12px" }}
             >
               Edit
             </Button>
@@ -551,7 +551,8 @@ export default function PersonalInformationPage() {
                   workPhone: profile.workPhone,
                 })
               }
-              style={outlinePrimaryButtonStyle}
+              className="fw-bold px-3 text-nowrap"
+              style={{ fontSize: "12px" }}
             >
               Edit
             </Button>
@@ -619,7 +620,8 @@ export default function PersonalInformationPage() {
                   workAuthorization: profile.workAuthorization || {},
                 })
               }
-              style={outlinePrimaryButtonStyle}
+              className="fw-bold px-3 text-nowrap"
+              style={{ fontSize: "12px" }}
             >
               Edit
             </Button>
@@ -730,7 +732,8 @@ export default function PersonalInformationPage() {
                   emergencyContacts: profile.emergencyContacts || [{}],
                 })
               }
-              style={outlinePrimaryButtonStyle}
+              className="fw-bold px-3 text-nowrap"
+              style={{ fontSize: "12px" }}
             >
               Edit
             </Button>
@@ -1022,7 +1025,13 @@ function InfoItem({ label, children }) {
 function ActionButtons({ onSave, onCancel }) {
   return (
     <Stack direction="horizontal" gap={2} className="mt-4">
-      <Button size="sm" variant="primary" onClick={onSave} style={saveButtonStyle}>
+      <Button
+        size="sm"
+        variant="primary"
+        onClick={onSave}
+        className="fw-bold px-3"
+        style={{ fontSize: "12px" }}
+      >
         Save
       </Button>
 
@@ -1030,7 +1039,8 @@ function ActionButtons({ onSave, onCancel }) {
         size="sm"
         variant="outline-secondary"
         onClick={onCancel}
-        style={cancelButtonStyle}
+        className="fw-bold px-3"
+        style={{ fontSize: "12px" }}
       >
         Cancel
       </Button>
@@ -1109,36 +1119,4 @@ const fileInputStyle = {
   fontWeight: "500",
   padding: "10px 14px",
   boxShadow: "none",
-};
-
-const outlinePrimaryButtonStyle = {
-  borderRadius: "999px",
-  borderColor: "#c7d2fe",
-  color: "#4f46e5",
-  background: "#ffffff",
-  fontSize: "12px",
-  fontWeight: "800",
-  padding: "7px 14px",
-  boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
-  whiteSpace: "nowrap",
-};
-
-const saveButtonStyle = {
-  borderRadius: "999px",
-  border: "none",
-  background: "linear-gradient(135deg, #2563eb, #4f46e5)",
-  fontSize: "12px",
-  fontWeight: "800",
-  padding: "7px 16px",
-  boxShadow: "0 8px 16px rgba(37, 99, 235, 0.18)",
-};
-
-const cancelButtonStyle = {
-  borderRadius: "999px",
-  borderColor: "#d8dee8",
-  color: "#374151",
-  background: "#ffffff",
-  fontSize: "12px",
-  fontWeight: "800",
-  padding: "7px 16px",
 };

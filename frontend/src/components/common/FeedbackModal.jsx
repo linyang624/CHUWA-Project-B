@@ -108,18 +108,10 @@ export default function FeedbackModal({
         }}
       >
         <Button
-          variant="secondary"
+          variant="outline-secondary"
           onClick={onClose}
           disabled={loading}
-          style={{
-            borderRadius: "999px",
-            padding: "8px 18px",
-            fontWeight: "700",
-            fontSize: "14px",
-            border: "1px solid #d8dee8",
-            background: "#ffffff",
-            color: "#374151",
-          }}
+          className="fw-bold px-3"
         >
           {cancelText}
         </Button>
@@ -128,21 +120,7 @@ export default function FeedbackModal({
           variant="primary"
           onClick={handleConfirm}
           disabled={loading || !feedback.trim()}
-          style={{
-            borderRadius: "999px",
-            padding: "8px 20px",
-            fontWeight: "700",
-            fontSize: "14px",
-            border: "none",
-            background:
-              loading || !feedback.trim()
-                ? "#a5b4fc"
-                : "linear-gradient(135deg, #2563eb, #4f46e5)",
-            boxShadow:
-              loading || !feedback.trim()
-                ? "none"
-                : "0 8px 16px rgba(37, 99, 235, 0.18)",
-          }}
+          className="fw-bold px-3"
         >
           {loading ? "Saving..." : confirmText}
         </Button>

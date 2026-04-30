@@ -1,6 +1,6 @@
 import DataTable from "../common/DataTable";
 import StatusBadge from "../common/StatusBadge";
-import { formatDateTime } from "../../utils/formatDate";
+
 
 /*
   RegistrationTokenTable
