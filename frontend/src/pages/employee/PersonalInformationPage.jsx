@@ -158,7 +158,20 @@ export default function PersonalInformationPage() {
   if (error) {
     return (
       <Layout>
-        <p style={{ color: "red" }}>{error}</p>
+        <div
+          style={{
+            background: "#fef2f2",
+            border: "1px solid #fecaca",
+            color: "#991b1b",
+            borderRadius: "16px",
+            padding: "16px 18px",
+            fontSize: "14px",
+            fontWeight: "700",
+            boxShadow: "0 10px 24px rgba(15, 23, 42, 0.05)",
+          }}
+        >
+          {error}
+        </div>
       </Layout>
     );
   }
@@ -178,707 +191,847 @@ export default function PersonalInformationPage() {
 
   return (
     <Layout>
-      <h1 className="mb-4">Personal Information</h1>
+      <PageHeader title="Personal Information" />
 
       {/* Name */}
-      <Card className="mb-3">
-        <Card.Body>
-          <div className="d-flex justify-content-between align-items-start mb-3">
-            <Card.Title className="mb-0">Name</Card.Title>
+      <SectionCard
+        title="Name"
+        action={
+          editingSection !== "name" && (
+            <Button
+              size="sm"
+              variant="outline-primary"
+              onClick={() =>
+                startEdit("name", {
+                  firstName: profile.firstName,
+                  lastName: profile.lastName,
+                  middleName: profile.middleName,
+                  preferredName: profile.preferredName,
+                  gender: profile.gender,
+                })
+              }
+              style={outlinePrimaryButtonStyle}
+            >
+              Edit
+            </Button>
+          )
+        }
+      >
+        {/* Avatar preview */}
+        <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3 mb-4">
+          <img
+            src={profilePictureUrl}
+            alt="Profile"
+            style={{
+              width: "96px",
+              height: "96px",
+              borderRadius: "50%",
+              objectFit: "cover",
+              border: "3px solid #eef2ff",
+              boxShadow: "0 8px 18px rgba(15, 23, 42, 0.08)",
+              flexShrink: 0,
+            }}
+          />
 
-            {editingSection !== "name" && (
-              <Button
-                size="sm"
-                variant="outline-primary"
-                onClick={() =>
-                  startEdit("name", {
-                    firstName: profile.firstName,
-                    lastName: profile.lastName,
-                    middleName: profile.middleName,
-                    preferredName: profile.preferredName,
-                    gender: profile.gender,
-                  })
-                }
+          <div className="flex-grow-1" style={{ minWidth: 0 }}>
+            <div
+              style={{
+                color: "#1f2937",
+                fontSize: "22px",
+                fontWeight: "900",
+                letterSpacing: "-0.04em",
+                lineHeight: "1.2",
+              }}
+            >
+              {profile.firstName || ""} {profile.lastName || ""}
+            </div>
+
+            <div
+              className="text-truncate mb-2"
+              style={{
+                color: "#6b7280",
+                fontSize: "14px",
+                fontWeight: "600",
+                maxWidth: "360px",
+              }}
+            >
+              {profile.email || "N/A"}
+            </div>
+
+            {/* Only show profile picture upload after clicking Edit */}
+            {editingSection === "name" && (
+              <div
+                style={{
+                  background: "#f8fafc",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "16px",
+                  padding: "14px",
+                  marginTop: "10px",
+                }}
               >
-                Edit
-              </Button>
+                <Form.Group className="mb-2">
+                  <Form.Label style={labelStyle}>
+                    Change Profile Picture
+                  </Form.Label>
+
+                  <Form.Control
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfilePictureChange}
+                    style={fileInputStyle}
+                  />
+                </Form.Group>
+
+                <Button
+                  size="sm"
+                  variant="outline-primary"
+                  onClick={handleUploadProfilePicture}
+                  disabled={!profilePictureFile}
+                  style={{
+                    ...outlinePrimaryButtonStyle,
+                    opacity: !profilePictureFile ? 0.65 : 1,
+                  }}
+                >
+                  Upload New Picture
+                </Button>
+              </div>
             )}
           </div>
+        </div>
 
-          {/* Avatar preview */}
-          <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3 mb-4">
-            <img
-              src={profilePictureUrl}
-              alt="Profile"
-              style={{
-                width: "96px",
-                height: "96px",
-                borderRadius: "50%",
-                objectFit: "cover",
-                border: "1px solid #ddd",
-              }}
-            />
-
-            <div className="flex-grow-1">
-              <div className="fw-semibold">
-                {profile.firstName || ""} {profile.lastName || ""}
-              </div>
-
-              <div className="text-muted small mb-2">
-                {profile.email || "N/A"}
-              </div>
-
-              {/* Only show profile picture upload after clicking Edit */}
-              {editingSection === "name" && (
-                <>
-                  <Form.Group className="mb-2">
-                    <Form.Label className="small mb-1">
-                      Change Profile Picture
-                    </Form.Label>
-
-                    <Form.Control
-                      type="file"
-                      accept="image/*"
-                      onChange={handleProfilePictureChange}
-                    />
-                  </Form.Group>
-
-                  <Button
-                    size="sm"
-                    variant="outline-primary"
-                    onClick={handleUploadProfilePicture}
-                    disabled={!profilePictureFile}
-                  >
-                    Upload New Picture
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-
-          {editingSection === "name" ? (
-            <>
-              <Row className="g-3">
-                <Col xs={12} md={6}>
-                  <Form.Group>
-                    <Form.Label>First Name</Form.Label>
-                    <Form.Control
-                      value={draft.firstName || ""}
-                      onChange={(e) =>
-                        setDraft({ ...draft, firstName: e.target.value })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={6}>
-                  <Form.Group>
-                    <Form.Label>Last Name</Form.Label>
-                    <Form.Control
-                      value={draft.lastName || ""}
-                      onChange={(e) =>
-                        setDraft({ ...draft, lastName: e.target.value })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={6}>
-                  <Form.Group>
-                    <Form.Label>Middle Name</Form.Label>
-                    <Form.Control
-                      value={draft.middleName || ""}
-                      onChange={(e) =>
-                        setDraft({ ...draft, middleName: e.target.value })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={6}>
-                  <Form.Group>
-                    <Form.Label>Preferred Name</Form.Label>
-                    <Form.Control
-                      value={draft.preferredName || ""}
-                      onChange={(e) =>
-                        setDraft({ ...draft, preferredName: e.target.value })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={6}>
-                  <Form.Group>
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control value={profile.email || ""} disabled readOnly />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={6}>
-                  <Form.Group>
-                    <Form.Label>Gender</Form.Label>
-                    <Form.Select
-                      value={draft.gender || ""}
-                      onChange={(e) =>
-                        setDraft({ ...draft, gender: e.target.value })
-                      }
-                    >
-                      <option value="">Select Gender</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="i_do_not_wish_to_answer">
-                        I do not wish to answer
-                      </option>
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <ActionButtons
-                onSave={() => saveSection("name")}
-                onCancel={cancelEdit}
-              />
-            </>
-          ) : (
+        {editingSection === "name" ? (
+          <>
             <Row className="g-3">
-              <InfoItem label="Legal Name">
-                {profile.firstName} {profile.middleName} {profile.lastName}
-              </InfoItem>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>First Name</Form.Label>
+                  <Form.Control
+                    value={draft.firstName || ""}
+                    onChange={(e) =>
+                      setDraft({ ...draft, firstName: e.target.value })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
 
-              <InfoItem label="Preferred Name">
-                {profile.preferredName || "N/A"}
-              </InfoItem>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>Last Name</Form.Label>
+                  <Form.Control
+                    value={draft.lastName || ""}
+                    onChange={(e) =>
+                      setDraft({ ...draft, lastName: e.target.value })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
 
-              <InfoItem label="Email">{profile.email || "N/A"}</InfoItem>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>Middle Name</Form.Label>
+                  <Form.Control
+                    value={draft.middleName || ""}
+                    onChange={(e) =>
+                      setDraft({ ...draft, middleName: e.target.value })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
 
-              <InfoItem label="Gender">{formatGender(profile.gender)}</InfoItem>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>Preferred Name</Form.Label>
+                  <Form.Control
+                    value={draft.preferredName || ""}
+                    onChange={(e) =>
+                      setDraft({ ...draft, preferredName: e.target.value })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>Email</Form.Label>
+                  <Form.Control
+                    value={profile.email || ""}
+                    disabled
+                    readOnly
+                    style={disabledInputStyle}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>Gender</Form.Label>
+                  <Form.Select
+                    value={draft.gender || ""}
+                    onChange={(e) =>
+                      setDraft({ ...draft, gender: e.target.value })
+                    }
+                    style={inputStyle}
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="i_do_not_wish_to_answer">
+                      I do not wish to answer
+                    </option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
             </Row>
-          )}
-        </Card.Body>
-      </Card>
+
+            <ActionButtons
+              onSave={() => saveSection("name")}
+              onCancel={cancelEdit}
+            />
+          </>
+        ) : (
+          <Row className="g-3">
+            <InfoItem label="Legal Name">
+              {profile.firstName} {profile.middleName} {profile.lastName}
+            </InfoItem>
+
+            <InfoItem label="Preferred Name">
+              {profile.preferredName || "N/A"}
+            </InfoItem>
+
+            <InfoItem label="Email">{profile.email || "N/A"}</InfoItem>
+
+            <InfoItem label="Gender">{formatGender(profile.gender)}</InfoItem>
+          </Row>
+        )}
+      </SectionCard>
 
       {/* Address */}
-      <Card className="mb-3">
-        <Card.Body>
-          <div className="d-flex justify-content-between align-items-start mb-3">
-            <Card.Title className="mb-0">Address</Card.Title>
-
-            {editingSection !== "address" && (
-              <Button
-                size="sm"
-                variant="outline-primary"
-                onClick={() =>
-                  startEdit("address", {
-                    address: profile.address,
-                  })
-                }
-              >
-                Edit
-              </Button>
-            )}
-          </div>
-
-          {editingSection === "address" ? (
-            <>
-              <Row className="g-3">
-                <Col xs={12} md={6}>
-                  <Form.Group>
-                    <Form.Label>Street</Form.Label>
-                    <Form.Control
-                      value={draft.address?.street || ""}
-                      onChange={(e) =>
-                        setDraft({
-                          address: { ...draft.address, street: e.target.value },
-                        })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={6}>
-                  <Form.Group>
-                    <Form.Label>Building / Apt</Form.Label>
-                    <Form.Control
-                      value={draft.address?.building || ""}
-                      onChange={(e) =>
-                        setDraft({
-                          address: {
-                            ...draft.address,
-                            building: e.target.value,
-                          },
-                        })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={4}>
-                  <Form.Group>
-                    <Form.Label>City</Form.Label>
-                    <Form.Control
-                      value={draft.address?.city || ""}
-                      onChange={(e) =>
-                        setDraft({
-                          address: { ...draft.address, city: e.target.value },
-                        })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={4}>
-                  <Form.Group>
-                    <Form.Label>State</Form.Label>
-                    <Form.Control
-                      value={draft.address?.state || ""}
-                      onChange={(e) =>
-                        setDraft({
-                          address: { ...draft.address, state: e.target.value },
-                        })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={4}>
-                  <Form.Group>
-                    <Form.Label>Zip</Form.Label>
-                    <Form.Control
-                      value={draft.address?.zip || ""}
-                      onChange={(e) =>
-                        setDraft({
-                          address: { ...draft.address, zip: e.target.value },
-                        })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <ActionButtons
-                onSave={() => saveSection("address")}
-                onCancel={cancelEdit}
-              />
-            </>
-          ) : (
+      <SectionCard
+        title="Address"
+        action={
+          editingSection !== "address" && (
+            <Button
+              size="sm"
+              variant="outline-primary"
+              onClick={() =>
+                startEdit("address", {
+                  address: profile.address,
+                })
+              }
+              style={outlinePrimaryButtonStyle}
+            >
+              Edit
+            </Button>
+          )
+        }
+      >
+        {editingSection === "address" ? (
+          <>
             <Row className="g-3">
-              <InfoItem label="Street">
-                {profile.address?.street || "N/A"}
-              </InfoItem>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>Street</Form.Label>
+                  <Form.Control
+                    value={draft.address?.street || ""}
+                    onChange={(e) =>
+                      setDraft({
+                        address: { ...draft.address, street: e.target.value },
+                      })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
 
-              <InfoItem label="Building / Apt">
-                {profile.address?.building || "N/A"}
-              </InfoItem>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>Building / Apt</Form.Label>
+                  <Form.Control
+                    value={draft.address?.building || ""}
+                    onChange={(e) =>
+                      setDraft({
+                        address: {
+                          ...draft.address,
+                          building: e.target.value,
+                        },
+                      })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
 
-              <InfoItem label="City">{profile.address?.city || "N/A"}</InfoItem>
+              <Col xs={12} md={4}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>City</Form.Label>
+                  <Form.Control
+                    value={draft.address?.city || ""}
+                    onChange={(e) =>
+                      setDraft({
+                        address: { ...draft.address, city: e.target.value },
+                      })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
 
-              <InfoItem label="State">
-                {profile.address?.state || "N/A"}
-              </InfoItem>
+              <Col xs={12} md={4}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>State</Form.Label>
+                  <Form.Control
+                    value={draft.address?.state || ""}
+                    onChange={(e) =>
+                      setDraft({
+                        address: { ...draft.address, state: e.target.value },
+                      })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
 
-              <InfoItem label="Zip">{profile.address?.zip || "N/A"}</InfoItem>
+              <Col xs={12} md={4}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>Zip</Form.Label>
+                  <Form.Control
+                    value={draft.address?.zip || ""}
+                    onChange={(e) =>
+                      setDraft({
+                        address: { ...draft.address, zip: e.target.value },
+                      })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
             </Row>
-          )}
-        </Card.Body>
-      </Card>
+
+            <ActionButtons
+              onSave={() => saveSection("address")}
+              onCancel={cancelEdit}
+            />
+          </>
+        ) : (
+          <Row className="g-3">
+            <InfoItem label="Street">
+              {profile.address?.street || "N/A"}
+            </InfoItem>
+
+            <InfoItem label="Building / Apt">
+              {profile.address?.building || "N/A"}
+            </InfoItem>
+
+            <InfoItem label="City">{profile.address?.city || "N/A"}</InfoItem>
+
+            <InfoItem label="State">
+              {profile.address?.state || "N/A"}
+            </InfoItem>
+
+            <InfoItem label="Zip">{profile.address?.zip || "N/A"}</InfoItem>
+          </Row>
+        )}
+      </SectionCard>
 
       {/* Contact */}
-      <Card className="mb-3">
-        <Card.Body>
-          <div className="d-flex justify-content-between align-items-start mb-3">
-            <Card.Title className="mb-0">Contact Info</Card.Title>
-
-            {editingSection !== "contact" && (
-              <Button
-                size="sm"
-                variant="outline-primary"
-                onClick={() =>
-                  startEdit("contact", {
-                    cellPhone: profile.cellPhone,
-                    workPhone: profile.workPhone,
-                  })
-                }
-              >
-                Edit
-              </Button>
-            )}
-          </div>
-
-          {editingSection === "contact" ? (
-            <>
-              <Row className="g-3">
-                <Col xs={12} md={6}>
-                  <Form.Group>
-                    <Form.Label>Cell Phone</Form.Label>
-                    <Form.Control
-                      value={draft.cellPhone || ""}
-                      onChange={(e) =>
-                        setDraft({ ...draft, cellPhone: e.target.value })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={6}>
-                  <Form.Group>
-                    <Form.Label>Work Phone</Form.Label>
-                    <Form.Control
-                      value={draft.workPhone || ""}
-                      onChange={(e) =>
-                        setDraft({ ...draft, workPhone: e.target.value })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <ActionButtons
-                onSave={() => saveSection("contact")}
-                onCancel={cancelEdit}
-              />
-            </>
-          ) : (
+      <SectionCard
+        title="Contact Info"
+        action={
+          editingSection !== "contact" && (
+            <Button
+              size="sm"
+              variant="outline-primary"
+              onClick={() =>
+                startEdit("contact", {
+                  cellPhone: profile.cellPhone,
+                  workPhone: profile.workPhone,
+                })
+              }
+              style={outlinePrimaryButtonStyle}
+            >
+              Edit
+            </Button>
+          )
+        }
+      >
+        {editingSection === "contact" ? (
+          <>
             <Row className="g-3">
-              <InfoItem label="Cell Phone">
-                {profile.cellPhone || "N/A"}
-              </InfoItem>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>Cell Phone</Form.Label>
+                  <Form.Control
+                    value={draft.cellPhone || ""}
+                    onChange={(e) =>
+                      setDraft({ ...draft, cellPhone: e.target.value })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
 
-              <InfoItem label="Work Phone">
-                {profile.workPhone || "N/A"}
-              </InfoItem>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>Work Phone</Form.Label>
+                  <Form.Control
+                    value={draft.workPhone || ""}
+                    onChange={(e) =>
+                      setDraft({ ...draft, workPhone: e.target.value })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
             </Row>
-          )}
-        </Card.Body>
-      </Card>
+
+            <ActionButtons
+              onSave={() => saveSection("contact")}
+              onCancel={cancelEdit}
+            />
+          </>
+        ) : (
+          <Row className="g-3">
+            <InfoItem label="Cell Phone">
+              {profile.cellPhone || "N/A"}
+            </InfoItem>
+
+            <InfoItem label="Work Phone">
+              {profile.workPhone || "N/A"}
+            </InfoItem>
+          </Row>
+        )}
+      </SectionCard>
 
       {/* Employment */}
-      <Card className="mb-3">
-        <Card.Body>
-          <div className="d-flex justify-content-between align-items-start mb-3">
-            <Card.Title className="mb-0">Employment</Card.Title>
-
-            {editingSection !== "employment" && (
-              <Button
-                size="sm"
-                variant="outline-primary"
-                onClick={() =>
-                  startEdit("employment", {
-                    workAuthorization: profile.workAuthorization || {},
-                  })
-                }
-              >
-                Edit
-              </Button>
-            )}
-          </div>
-
-          {editingSection === "employment" ? (
-            <>
-              <Row className="g-3">
-                <Col xs={12} md={4}>
-                  <Form.Group>
-                    <Form.Label>Visa Title</Form.Label>
-                    <Form.Control
-                      value={draft.workAuthorization?.visaTitle || ""}
-                      onChange={(e) =>
-                        setDraft({
-                          ...draft,
-                          workAuthorization: {
-                            ...draft.workAuthorization,
-                            visaTitle: e.target.value,
-                          },
-                        })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={4}>
-                  <Form.Group>
-                    <Form.Label>Start Date</Form.Label>
-                    <Form.Control
-                      type="date"
-                      value={
-                        draft.workAuthorization?.startDate?.slice(0, 10) || ""
-                      }
-                      onChange={(e) =>
-                        setDraft({
-                          ...draft,
-                          workAuthorization: {
-                            ...draft.workAuthorization,
-                            startDate: e.target.value,
-                          },
-                        })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={4}>
-                  <Form.Group>
-                    <Form.Label>End Date</Form.Label>
-                    <Form.Control
-                      type="date"
-                      value={
-                        draft.workAuthorization?.endDate?.slice(0, 10) || ""
-                      }
-                      onChange={(e) =>
-                        setDraft({
-                          ...draft,
-                          workAuthorization: {
-                            ...draft.workAuthorization,
-                            endDate: e.target.value,
-                          },
-                        })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <ActionButtons
-                onSave={() => saveSection("employment")}
-                onCancel={cancelEdit}
-              />
-            </>
-          ) : (
+      <SectionCard
+        title="Employment"
+        action={
+          editingSection !== "employment" && (
+            <Button
+              size="sm"
+              variant="outline-primary"
+              onClick={() =>
+                startEdit("employment", {
+                  workAuthorization: profile.workAuthorization || {},
+                })
+              }
+              style={outlinePrimaryButtonStyle}
+            >
+              Edit
+            </Button>
+          )
+        }
+      >
+        {editingSection === "employment" ? (
+          <>
             <Row className="g-3">
-              <InfoItem label="Visa Title">
-                {formatVisaTitle(profile.workAuthorization?.visaTitle)}
-              </InfoItem>
+              <Col xs={12} md={4}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>Visa Title</Form.Label>
+                  <Form.Control
+                    value={draft.workAuthorization?.visaTitle || ""}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        workAuthorization: {
+                          ...draft.workAuthorization,
+                          visaTitle: e.target.value,
+                        },
+                      })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
 
-              <InfoItem label="Start Date">
-                {profile.workAuthorization?.startDate
-                  ? profile.workAuthorization.startDate.slice(0, 10)
-                  : "N/A"}
-              </InfoItem>
+              <Col xs={12} md={4}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>Start Date</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={
+                      draft.workAuthorization?.startDate?.slice(0, 10) || ""
+                    }
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        workAuthorization: {
+                          ...draft.workAuthorization,
+                          startDate: e.target.value,
+                        },
+                      })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
 
-              <InfoItem label="End Date">
-                {profile.workAuthorization?.endDate
-                  ? profile.workAuthorization.endDate.slice(0, 10)
-                  : "N/A"}
-              </InfoItem>
+              <Col xs={12} md={4}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>End Date</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={draft.workAuthorization?.endDate?.slice(0, 10) || ""}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        workAuthorization: {
+                          ...draft.workAuthorization,
+                          endDate: e.target.value,
+                        },
+                      })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
             </Row>
-          )}
-        </Card.Body>
-      </Card>
+
+            <ActionButtons
+              onSave={() => saveSection("employment")}
+              onCancel={cancelEdit}
+            />
+          </>
+        ) : (
+          <Row className="g-3">
+            <InfoItem label="Visa Title">
+              {formatVisaTitle(profile.workAuthorization?.visaTitle)}
+            </InfoItem>
+
+            <InfoItem label="Start Date">
+              {profile.workAuthorization?.startDate
+                ? profile.workAuthorization.startDate.slice(0, 10)
+                : "N/A"}
+            </InfoItem>
+
+            <InfoItem label="End Date">
+              {profile.workAuthorization?.endDate
+                ? profile.workAuthorization.endDate.slice(0, 10)
+                : "N/A"}
+            </InfoItem>
+          </Row>
+        )}
+      </SectionCard>
 
       {/* Emergency Contact */}
-      <Card className="mb-3">
-        <Card.Body>
-          <div className="d-flex justify-content-between align-items-start mb-3">
-            <Card.Title className="mb-0">Emergency Contact</Card.Title>
-
-            {editingSection !== "emergency" && (
-              <Button
-                size="sm"
-                variant="outline-primary"
-                onClick={() =>
-                  startEdit("emergency", {
-                    emergencyContacts: profile.emergencyContacts || [{}],
-                  })
-                }
-              >
-                Edit
-              </Button>
-            )}
-          </div>
-
-          {editingSection === "emergency" ? (
-            <>
-              <Row className="g-3">
-                <Col xs={12} md={6}>
-                  <Form.Group>
-                    <Form.Label>First Name</Form.Label>
-                    <Form.Control
-                      value={draft.emergencyContacts?.[0]?.firstName || ""}
-                      onChange={(e) =>
-                        setDraft({
-                          ...draft,
-                          emergencyContacts: [
-                            {
-                              ...(draft.emergencyContacts?.[0] || {}),
-                              firstName: e.target.value,
-                            },
-                          ],
-                        })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={6}>
-                  <Form.Group>
-                    <Form.Label>Last Name</Form.Label>
-                    <Form.Control
-                      value={draft.emergencyContacts?.[0]?.lastName || ""}
-                      onChange={(e) =>
-                        setDraft({
-                          ...draft,
-                          emergencyContacts: [
-                            {
-                              ...(draft.emergencyContacts?.[0] || {}),
-                              lastName: e.target.value,
-                            },
-                          ],
-                        })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={6}>
-                  <Form.Group>
-                    <Form.Label>Phone</Form.Label>
-                    <Form.Control
-                      value={draft.emergencyContacts?.[0]?.phone || ""}
-                      onChange={(e) =>
-                        setDraft({
-                          ...draft,
-                          emergencyContacts: [
-                            {
-                              ...(draft.emergencyContacts?.[0] || {}),
-                              phone: e.target.value,
-                            },
-                          ],
-                        })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={6}>
-                  <Form.Group>
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control
-                      value={draft.emergencyContacts?.[0]?.email || ""}
-                      onChange={(e) =>
-                        setDraft({
-                          ...draft,
-                          emergencyContacts: [
-                            {
-                              ...(draft.emergencyContacts?.[0] || {}),
-                              email: e.target.value,
-                            },
-                          ],
-                        })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col xs={12} md={6}>
-                  <Form.Group>
-                    <Form.Label>Relationship</Form.Label>
-                    <Form.Control
-                      value={draft.emergencyContacts?.[0]?.relationship || ""}
-                      onChange={(e) =>
-                        setDraft({
-                          ...draft,
-                          emergencyContacts: [
-                            {
-                              ...(draft.emergencyContacts?.[0] || {}),
-                              relationship: e.target.value,
-                            },
-                          ],
-                        })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <ActionButtons
-                onSave={() => saveSection("emergency")}
-                onCancel={cancelEdit}
-              />
-            </>
-          ) : (
+      <SectionCard
+        title="Emergency Contact"
+        action={
+          editingSection !== "emergency" && (
+            <Button
+              size="sm"
+              variant="outline-primary"
+              onClick={() =>
+                startEdit("emergency", {
+                  emergencyContacts: profile.emergencyContacts || [{}],
+                })
+              }
+              style={outlinePrimaryButtonStyle}
+            >
+              Edit
+            </Button>
+          )
+        }
+      >
+        {editingSection === "emergency" ? (
+          <>
             <Row className="g-3">
-              <InfoItem label="Name">
-                {profile.emergencyContacts?.[0]?.firstName || "N/A"}{" "}
-                {profile.emergencyContacts?.[0]?.lastName || ""}
-              </InfoItem>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>First Name</Form.Label>
+                  <Form.Control
+                    value={draft.emergencyContacts?.[0]?.firstName || ""}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        emergencyContacts: [
+                          {
+                            ...(draft.emergencyContacts?.[0] || {}),
+                            firstName: e.target.value,
+                          },
+                        ],
+                      })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
 
-              <InfoItem label="Phone">
-                {profile.emergencyContacts?.[0]?.phone || "N/A"}
-              </InfoItem>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>Last Name</Form.Label>
+                  <Form.Control
+                    value={draft.emergencyContacts?.[0]?.lastName || ""}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        emergencyContacts: [
+                          {
+                            ...(draft.emergencyContacts?.[0] || {}),
+                            lastName: e.target.value,
+                          },
+                        ],
+                      })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
 
-              <InfoItem label="Email">
-                {profile.emergencyContacts?.[0]?.email || "N/A"}
-              </InfoItem>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>Phone</Form.Label>
+                  <Form.Control
+                    value={draft.emergencyContacts?.[0]?.phone || ""}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        emergencyContacts: [
+                          {
+                            ...(draft.emergencyContacts?.[0] || {}),
+                            phone: e.target.value,
+                          },
+                        ],
+                      })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
 
-              <InfoItem label="Relationship">
-                {profile.emergencyContacts?.[0]?.relationship || "N/A"}
-              </InfoItem>
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>Email</Form.Label>
+                  <Form.Control
+                    value={draft.emergencyContacts?.[0]?.email || ""}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        emergencyContacts: [
+                          {
+                            ...(draft.emergencyContacts?.[0] || {}),
+                            email: e.target.value,
+                          },
+                        ],
+                      })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col xs={12} md={6}>
+                <Form.Group>
+                  <Form.Label style={labelStyle}>Relationship</Form.Label>
+                  <Form.Control
+                    value={draft.emergencyContacts?.[0]?.relationship || ""}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        emergencyContacts: [
+                          {
+                            ...(draft.emergencyContacts?.[0] || {}),
+                            relationship: e.target.value,
+                          },
+                        ],
+                      })
+                    }
+                    style={inputStyle}
+                  />
+                </Form.Group>
+              </Col>
             </Row>
-          )}
-        </Card.Body>
-      </Card>
+
+            <ActionButtons
+              onSave={() => saveSection("emergency")}
+              onCancel={cancelEdit}
+            />
+          </>
+        ) : (
+          <Row className="g-3">
+            <InfoItem label="Name">
+              {profile.emergencyContacts?.[0]?.firstName || "N/A"}{" "}
+              {profile.emergencyContacts?.[0]?.lastName || ""}
+            </InfoItem>
+
+            <InfoItem label="Phone">
+              {profile.emergencyContacts?.[0]?.phone || "N/A"}
+            </InfoItem>
+
+            <InfoItem label="Email">
+              {profile.emergencyContacts?.[0]?.email || "N/A"}
+            </InfoItem>
+
+            <InfoItem label="Relationship">
+              {profile.emergencyContacts?.[0]?.relationship || "N/A"}
+            </InfoItem>
+          </Row>
+        )}
+      </SectionCard>
 
       {/* Uploaded Documents */}
-      <Card className="mb-3">
-        <Card.Body>
-          <Card.Title className="mb-3">Uploaded Documents</Card.Title>
+      <SectionCard title="Uploaded Documents">
+        <Row className="g-3">
+          <Col xs={12} md={6}>
+            <DocumentItem
+              title="Profile Picture"
+              document={profile.profilePicture}
+            />
+          </Col>
 
-          <Row className="g-3">
-            <Col xs={12} md={6}>
+          <Col xs={12} md={6}>
+            <DocumentItem
+              title="Driver License"
+              document={profile.driverLicense}
+            />
+          </Col>
+
+          <Col xs={12} md={6}>
+            {profile.isPermanentResidentOrCitizen ? (
+              <div
+                style={{
+                  background: "#f8fafc",
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "16px",
+                  padding: "14px",
+                  color: "#6b7280",
+                  fontSize: "14px",
+                  fontWeight: "700",
+                  lineHeight: "1.5",
+                }}
+              >
+                No work authorization document required for Citizen / Green
+                Card.
+              </div>
+            ) : (
               <DocumentItem
-                title="Profile Picture"
-                document={profile.profilePicture}
+                title={
+                  profile.workAuthorization?.visaTitle === "f1_cpt_opt"
+                    ? "OPT Receipt"
+                    : "Work Authorization Document"
+                }
+                document={profile.workAuthorization?.optReceipt}
               />
-            </Col>
-
-            <Col xs={12} md={6}>
-              <DocumentItem
-                title="Driver License"
-                document={profile.driverLicense}
-              />
-            </Col>
-
-            <Col xs={12} md={6}>
-              {profile.isPermanentResidentOrCitizen ? (
-                <p className="mb-0">
-                  No work authorization document required for Citizen / Green
-                  Card.
-                </p>
-              ) : (
-                <DocumentItem
-                  title={
-                    profile.workAuthorization?.visaTitle === "f1_cpt_opt"
-                      ? "OPT Receipt"
-                      : "Work Authorization Document"
-                  }
-                  document={profile.workAuthorization?.optReceipt}
-                />
-              )}
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
+            )}
+          </Col>
+        </Row>
+      </SectionCard>
     </Layout>
+  );
+}
+
+function PageHeader({ title }) {
+  return (
+    <div className="mb-4">
+      <h1
+        className="mb-0"
+        style={{
+          color: "#1f2937",
+          fontSize: "clamp(30px, 4vw, 42px)",
+          fontWeight: "900",
+          letterSpacing: "-0.055em",
+          lineHeight: "1.08",
+        }}
+      >
+        {title}
+      </h1>
+    </div>
+  );
+}
+
+function SectionCard({ title, action, children }) {
+  return (
+    <Card
+      className="mb-4 border-0"
+      style={{
+        borderRadius: "20px",
+        boxShadow: "0 10px 24px rgba(15, 23, 42, 0.05)",
+        overflow: "hidden",
+        fontFamily:
+          "Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      }}
+    >
+      <Card.Body className="p-4">
+        <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+          <Card.Title
+            className="mb-0"
+            style={{
+              color: "#1f2937",
+              fontSize: "22px",
+              fontWeight: "900",
+              letterSpacing: "-0.04em",
+            }}
+          >
+            {title}
+          </Card.Title>
+
+          {action}
+        </div>
+
+        {children}
+      </Card.Body>
+    </Card>
   );
 }
 
 function InfoItem({ label, children }) {
   return (
     <Col xs={12} md={6} lg={4}>
-      <div>
-        <strong>{label}:</strong>
+      <div
+        style={{
+          background: "#f8fafc",
+          border: "1px solid #e5e7eb",
+          borderRadius: "14px",
+          padding: "12px 14px",
+          minHeight: "76px",
+        }}
+      >
+        <div
+          style={{
+            color: "#6b7280",
+            fontSize: "12px",
+            fontWeight: "900",
+            textTransform: "uppercase",
+            letterSpacing: "0.04em",
+            marginBottom: "5px",
+          }}
+        >
+          {label}
+        </div>
+
+        <div
+          style={{
+            color: "#1f2937",
+            fontSize: "14px",
+            fontWeight: "700",
+            lineHeight: "1.45",
+            wordBreak: "break-word",
+          }}
+        >
+          {children}
+        </div>
       </div>
-      <div>{children}</div>
     </Col>
   );
 }
 
 function ActionButtons({ onSave, onCancel }) {
   return (
-    <Stack direction="horizontal" gap={2} className="mt-3">
-      <Button size="sm" variant="primary" onClick={onSave}>
+    <Stack direction="horizontal" gap={2} className="mt-4">
+      <Button size="sm" variant="primary" onClick={onSave} style={saveButtonStyle}>
         Save
       </Button>
 
-      <Button size="sm" variant="outline-secondary" onClick={onCancel}>
+      <Button
+        size="sm"
+        variant="outline-secondary"
+        onClick={onCancel}
+        style={cancelButtonStyle}
+      >
         Cancel
       </Button>
     </Stack>
@@ -925,3 +1078,67 @@ function formatVisaTitle(title) {
 
   return map[title] || "N/A";
 }
+
+const labelStyle = {
+  color: "#374151",
+  fontSize: "14px",
+  fontWeight: "800",
+  marginBottom: "8px",
+};
+
+const inputStyle = {
+  height: "48px",
+  borderRadius: "14px",
+  border: "1px solid #d8dee8",
+  fontSize: "14px",
+  fontWeight: "500",
+  paddingLeft: "14px",
+  boxShadow: "none",
+};
+
+const disabledInputStyle = {
+  ...inputStyle,
+  backgroundColor: "#eef2f7",
+  color: "#4b5563",
+};
+
+const fileInputStyle = {
+  borderRadius: "14px",
+  border: "1px solid #d8dee8",
+  fontSize: "14px",
+  fontWeight: "500",
+  padding: "10px 14px",
+  boxShadow: "none",
+};
+
+const outlinePrimaryButtonStyle = {
+  borderRadius: "999px",
+  borderColor: "#c7d2fe",
+  color: "#4f46e5",
+  background: "#ffffff",
+  fontSize: "12px",
+  fontWeight: "800",
+  padding: "7px 14px",
+  boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
+  whiteSpace: "nowrap",
+};
+
+const saveButtonStyle = {
+  borderRadius: "999px",
+  border: "none",
+  background: "linear-gradient(135deg, #2563eb, #4f46e5)",
+  fontSize: "12px",
+  fontWeight: "800",
+  padding: "7px 16px",
+  boxShadow: "0 8px 16px rgba(37, 99, 235, 0.18)",
+};
+
+const cancelButtonStyle = {
+  borderRadius: "999px",
+  borderColor: "#d8dee8",
+  color: "#374151",
+  background: "#ffffff",
+  fontSize: "12px",
+  fontWeight: "800",
+  padding: "7px 16px",
+};

@@ -178,9 +178,21 @@ export default function OnboardingApplicationPage() {
   if (onboardingStatus === "pending") {
     return (
       <Layout>
-        <h1 className="mb-4">Onboarding Status</h1>
+        <PageHeader title="Onboarding Status" />
 
-        <Alert variant="secondary">
+        <Alert
+          variant="secondary"
+          style={{
+            borderRadius: "16px",
+            border: "1px solid #e5e7eb",
+            background: "#ffffff",
+            color: "#374151",
+            fontSize: "14px",
+            fontWeight: "700",
+            padding: "16px 18px",
+            boxShadow: "0 10px 24px rgba(15, 23, 42, 0.05)",
+          }}
+        >
           Pending: Please wait for HR to review your application.
         </Alert>
       </Layout>
@@ -301,821 +313,793 @@ export default function OnboardingApplicationPage() {
     <Layout>
       {onboardingStatus === "rejected" ? (
         <>
-          <h1 className="mb-4">Application Rejected</h1>
+          <PageHeader title="Application Rejected" />
 
-          <Alert variant="danger">
+          <Alert
+            variant="danger"
+            style={{
+              borderRadius: "16px",
+              border: "1px solid #fecaca",
+              background: "#fef2f2",
+              color: "#991b1b",
+              fontSize: "14px",
+              fontWeight: "600",
+              padding: "16px 18px",
+              boxShadow: "0 10px 24px rgba(15, 23, 42, 0.05)",
+            }}
+          >
             <strong>HR Feedback:</strong>
-            <p className="mb-0">
+            <p className="mb-0 mt-1">
               {application?.feedback ||
                 "Your application was rejected. Please update and resubmit."}
             </p>
           </Alert>
         </>
       ) : (
-        <>
-          <h1 className="mb-2">Onboarding Application</h1>
-          <p className="text-muted mb-4">
-            Please fill out your onboarding application.
-          </p>
-        </>
+        <PageHeader
+          title="Onboarding Application"
+          subtitle="Please fill out your onboarding application."
+        />
       )}
 
       <Form onSubmit={handleSubmit(onSubmit)}>
         {/* Basic Profile */}
-        <Card className="mb-3">
-          <Card.Body>
-            <Card.Title className="mb-3">Basic Profile</Card.Title>
+        <SectionCard title="Basic Profile">
+          <div className="d-flex flex-column flex-sm-row align-items-sm-center gap-3 mb-4">
+            <img
+              src={profilePreview}
+              alt="Current profile preview"
+              style={{
+                width: "96px",
+                height: "96px",
+                borderRadius: "50%",
+                objectFit: "cover",
+                border: "3px solid #eef2ff",
+                boxShadow: "0 8px 18px rgba(15, 23, 42, 0.08)",
+                flexShrink: 0,
+              }}
+            />
 
-            <div className="d-flex align-items-center gap-3 mb-4">
-              <img
-                src={profilePreview}
-                alt="Current profile preview"
+            <div style={{ minWidth: 0 }}>
+              <h5
+                className="mb-1"
                 style={{
-                  width: "96px",
-                  height: "96px",
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                  border: "1px solid #ddd",
+                  color: "#1f2937",
+                  fontSize: "18px",
+                  fontWeight: "900",
+                  letterSpacing: "-0.03em",
                 }}
-              />
+              >
+                Current Profile Picture
+              </h5>
 
-              <div>
-                <h5 className="mb-1">Current Profile Picture</h5>
-                <p className="text-muted mb-0">
-                  This image will be used as your employee profile picture.
-                </p>
-              </div>
+              <p
+                className="mb-0"
+                style={{
+                  color: "#6b7280",
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  lineHeight: "1.5",
+                }}
+              >
+                This image will be used as your employee profile picture.
+              </p>
             </div>
+          </div>
 
-            <Row className="g-3">
-              <Col xs={12} md={6}>
-                <Form.Group>
-                  <Form.Label>First Name *</Form.Label>
-                  <Form.Control
-                    placeholder="First Name"
-                    {...register("firstName", {
-                      required: "First name is required",
-                    })}
-                  />
-                  {errors.firstName && (
-                    <Form.Text className="text-danger">
-                      {errors.firstName.message}
-                    </Form.Text>
-                  )}
-                </Form.Group>
-              </Col>
+          <Row className="g-3">
+            <Col xs={12} md={6}>
+              <FormField label="First Name *" error={errors.firstName?.message}>
+                <Form.Control
+                  placeholder="First Name"
+                  {...register("firstName", {
+                    required: "First name is required",
+                  })}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
 
-              <Col xs={12} md={6}>
-                <Form.Group>
-                  <Form.Label>Last Name *</Form.Label>
-                  <Form.Control
-                    placeholder="Last Name"
-                    {...register("lastName", {
-                      required: "Last name is required",
-                    })}
-                  />
-                  {errors.lastName && (
-                    <Form.Text className="text-danger">
-                      {errors.lastName.message}
-                    </Form.Text>
-                  )}
-                </Form.Group>
-              </Col>
+            <Col xs={12} md={6}>
+              <FormField label="Last Name *" error={errors.lastName?.message}>
+                <Form.Control
+                  placeholder="Last Name"
+                  {...register("lastName", {
+                    required: "Last name is required",
+                  })}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
 
-              <Col xs={12} md={6}>
-                <Form.Group>
-                  <Form.Label>Middle Name</Form.Label>
-                  <Form.Control
-                    placeholder="Middle Name"
-                    {...register("middleName")}
-                  />
-                </Form.Group>
-              </Col>
+            <Col xs={12} md={6}>
+              <FormField label="Middle Name">
+                <Form.Control
+                  placeholder="Middle Name"
+                  {...register("middleName")}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
 
-              <Col xs={12} md={6}>
-                <Form.Group>
-                  <Form.Label>Preferred Name</Form.Label>
-                  <Form.Control
-                    placeholder="Preferred Name"
-                    {...register("preferredName")}
-                  />
-                </Form.Group>
-              </Col>
+            <Col xs={12} md={6}>
+              <FormField label="Preferred Name">
+                <Form.Control
+                  placeholder="Preferred Name"
+                  {...register("preferredName")}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
 
-              <Col xs={12}>
-                <Form.Group>
-                  <Form.Label>Profile Picture</Form.Label>
-                  <Form.Control
-                    type="file"
-                    accept="image/*"
-                    {...register("profilePicture", {
-                      onChange: handleProfilePictureChange,
-                    })}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
+            <Col xs={12}>
+              <FormField label="Profile Picture">
+                <Form.Control
+                  type="file"
+                  accept="image/*"
+                  {...register("profilePicture", {
+                    onChange: handleProfilePictureChange,
+                  })}
+                  style={fileInputStyle}
+                />
+              </FormField>
+            </Col>
+          </Row>
+        </SectionCard>
 
         {/* Address */}
-        <Card className="mb-3">
-          <Card.Body>
-            <Card.Title className="mb-3">Address</Card.Title>
+        <SectionCard title="Address">
+          <Row className="g-3">
+            <Col xs={12} md={6}>
+              <FormField label="Street *" error={errors.street?.message}>
+                <Form.Control
+                  placeholder="Street"
+                  {...register("street", {
+                    required: "Street is required",
+                  })}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
 
-            <Row className="g-3">
-              <Col xs={12} md={6}>
-                <Form.Group>
-                  <Form.Label>Street *</Form.Label>
-                  <Form.Control
-                    placeholder="Street"
-                    {...register("street", {
-                      required: "Street is required",
-                    })}
-                  />
-                  {errors.street && (
-                    <Form.Text className="text-danger">
-                      {errors.street.message}
-                    </Form.Text>
-                  )}
-                </Form.Group>
-              </Col>
+            <Col xs={12} md={6}>
+              <FormField label="Building / Apt">
+                <Form.Control
+                  placeholder="Building / Apt"
+                  {...register("building")}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
 
-              <Col xs={12} md={6}>
-                <Form.Group>
-                  <Form.Label>Building / Apt</Form.Label>
-                  <Form.Control
-                    placeholder="Building / Apt"
-                    {...register("building")}
-                  />
-                </Form.Group>
-              </Col>
+            <Col xs={12} md={4}>
+              <FormField label="City *" error={errors.city?.message}>
+                <Form.Control
+                  placeholder="City"
+                  {...register("city", {
+                    required: "City is required",
+                  })}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
 
-              <Col xs={12} md={4}>
-                <Form.Group>
-                  <Form.Label>City *</Form.Label>
-                  <Form.Control
-                    placeholder="City"
-                    {...register("city", {
-                      required: "City is required",
-                    })}
-                  />
-                  {errors.city && (
-                    <Form.Text className="text-danger">
-                      {errors.city.message}
-                    </Form.Text>
-                  )}
-                </Form.Group>
-              </Col>
+            <Col xs={12} md={4}>
+              <FormField label="State *" error={errors.state?.message}>
+                <Form.Control
+                  placeholder="State"
+                  {...register("state", {
+                    required: "State is required",
+                  })}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
 
-              <Col xs={12} md={4}>
-                <Form.Group>
-                  <Form.Label>State *</Form.Label>
-                  <Form.Control
-                    placeholder="State"
-                    {...register("state", {
-                      required: "State is required",
-                    })}
-                  />
-                  {errors.state && (
-                    <Form.Text className="text-danger">
-                      {errors.state.message}
-                    </Form.Text>
-                  )}
-                </Form.Group>
-              </Col>
-
-              <Col xs={12} md={4}>
-                <Form.Group>
-                  <Form.Label>Zip *</Form.Label>
-                  <Form.Control
-                    placeholder="Zip"
-                    {...register("zip", {
-                      required: "Zip is required",
-                    })}
-                  />
-                  {errors.zip && (
-                    <Form.Text className="text-danger">
-                      {errors.zip.message}
-                    </Form.Text>
-                  )}
-                </Form.Group>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
+            <Col xs={12} md={4}>
+              <FormField label="Zip *" error={errors.zip?.message}>
+                <Form.Control
+                  placeholder="Zip"
+                  {...register("zip", {
+                    required: "Zip is required",
+                  })}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
+          </Row>
+        </SectionCard>
 
         {/* Contact */}
-        <Card className="mb-3">
-          <Card.Body>
-            <Card.Title className="mb-3">Contact</Card.Title>
+        <SectionCard title="Contact">
+          <Row className="g-3">
+            <Col xs={12} md={6}>
+              <FormField
+                label="Cell Phone Number *"
+                error={errors.cellPhone?.message}
+              >
+                <Form.Control
+                  placeholder="Cell Phone"
+                  {...register("cellPhone", {
+                    required: "Cell phone is required",
+                  })}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
 
-            <Row className="g-3">
-              <Col xs={12} md={6}>
-                <Form.Group>
-                  <Form.Label>Cell Phone Number *</Form.Label>
-                  <Form.Control
-                    placeholder="Cell Phone"
-                    {...register("cellPhone", {
-                      required: "Cell phone is required",
-                    })}
-                  />
-                  {errors.cellPhone && (
-                    <Form.Text className="text-danger">
-                      {errors.cellPhone.message}
-                    </Form.Text>
-                  )}
-                </Form.Group>
-              </Col>
+            <Col xs={12} md={6}>
+              <FormField label="Work Phone Number">
+                <Form.Control
+                  placeholder="Work Phone"
+                  {...register("workPhone")}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
 
-              <Col xs={12} md={6}>
-                <Form.Group>
-                  <Form.Label>Work Phone Number</Form.Label>
-                  <Form.Control
-                    placeholder="Work Phone"
-                    {...register("workPhone")}
-                  />
-                </Form.Group>
-              </Col>
-
-              <Col xs={12}>
-                <Form.Group>
-                  <Form.Label>Email</Form.Label>
-                  <Form.Control value={user.email || ""} disabled readOnly />
-                </Form.Group>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
+            <Col xs={12}>
+              <FormField label="Email">
+                <Form.Control
+                  value={user.email || ""}
+                  disabled
+                  readOnly
+                  style={{
+                    ...inputStyle,
+                    backgroundColor: "#eef2f7",
+                    color: "#4b5563",
+                  }}
+                />
+              </FormField>
+            </Col>
+          </Row>
+        </SectionCard>
 
         {/* Personal Details */}
-        <Card className="mb-3">
-          <Card.Body>
-            <Card.Title className="mb-3">Personal Details</Card.Title>
+        <SectionCard title="Personal Details">
+          <Row className="g-3">
+            <Col xs={12} md={4}>
+              <FormField label="SSN *" error={errors.ssn?.message}>
+                <Form.Control
+                  placeholder="SSN"
+                  {...register("ssn", {
+                    required: "SSN is required",
+                  })}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
 
-            <Row className="g-3">
-              <Col xs={12} md={4}>
-                <Form.Group>
-                  <Form.Label>SSN *</Form.Label>
-                  <Form.Control
-                    placeholder="SSN"
-                    {...register("ssn", {
-                      required: "SSN is required",
-                    })}
-                  />
-                  {errors.ssn && (
-                    <Form.Text className="text-danger">
-                      {errors.ssn.message}
-                    </Form.Text>
-                  )}
-                </Form.Group>
-              </Col>
+            <Col xs={12} md={4}>
+              <FormField
+                label="Date of Birth *"
+                error={errors.dateOfBirth?.message}
+              >
+                <Form.Control
+                  type="date"
+                  {...register("dateOfBirth", {
+                    required: "Date of birth is required",
+                  })}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
 
-              <Col xs={12} md={4}>
-                <Form.Group>
-                  <Form.Label>Date of Birth *</Form.Label>
-                  <Form.Control
-                    type="date"
-                    {...register("dateOfBirth", {
-                      required: "Date of birth is required",
-                    })}
-                  />
-                  {errors.dateOfBirth && (
-                    <Form.Text className="text-danger">
-                      {errors.dateOfBirth.message}
-                    </Form.Text>
-                  )}
-                </Form.Group>
-              </Col>
-
-              <Col xs={12} md={4}>
-                <Form.Group>
-                  <Form.Label>Gender *</Form.Label>
-                  <Form.Select
-                    {...register("gender", {
-                      required: "Gender is required",
-                    })}
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="i_do_not_wish_to_answer">
-                      I do not wish to answer
-                    </option>
-                  </Form.Select>
-                  {errors.gender && (
-                    <Form.Text className="text-danger">
-                      {errors.gender.message}
-                    </Form.Text>
-                  )}
-                </Form.Group>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
+            <Col xs={12} md={4}>
+              <FormField label="Gender *" error={errors.gender?.message}>
+                <Form.Select
+                  {...register("gender", {
+                    required: "Gender is required",
+                  })}
+                  style={inputStyle}
+                >
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="i_do_not_wish_to_answer">
+                    I do not wish to answer
+                  </option>
+                </Form.Select>
+              </FormField>
+            </Col>
+          </Row>
+        </SectionCard>
 
         {/* Work Authorization */}
-        <Card className="mb-3">
-          <Card.Body>
-            <Card.Title className="mb-3">Work Authorization</Card.Title>
+        <SectionCard title="Work Authorization">
+          <Row className="g-3">
+            <Col xs={12}>
+              <FormField
+                label="Are you a permanent resident or citizen of the U.S.? *"
+                error={errors.isPermanentResidentOrCitizen?.message}
+              >
+                <Form.Select
+                  {...register("isPermanentResidentOrCitizen", {
+                    required: "This field is required",
+                  })}
+                  style={inputStyle}
+                >
+                  <option value="">Select</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </Form.Select>
+              </FormField>
+            </Col>
 
-            <Row className="g-3">
-              <Col xs={12}>
-                <Form.Group>
-                  <Form.Label>
-                    Are you a permanent resident or citizen of the U.S.? *
-                  </Form.Label>
+            {isPR === "yes" && (
+              <Col xs={12} md={6}>
+                <FormField
+                  label="Status Type *"
+                  error={errors.residentType?.message}
+                >
                   <Form.Select
-                    {...register("isPermanentResidentOrCitizen", {
-                      required: "This field is required",
+                    {...register("residentType", {
+                      required:
+                        isPR === "yes" ? "Status type is required" : false,
                     })}
+                    style={inputStyle}
                   >
-                    <option value="">Select</option>
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
+                    <option value="">Select Type</option>
+                    <option value="green_card">Green Card</option>
+                    <option value="citizen">Citizen</option>
                   </Form.Select>
-                  {errors.isPermanentResidentOrCitizen && (
-                    <Form.Text className="text-danger">
-                      {errors.isPermanentResidentOrCitizen.message}
-                    </Form.Text>
-                  )}
-                </Form.Group>
+                </FormField>
               </Col>
+            )}
 
-              {isPR === "yes" && (
+            {isPR === "no" && (
+              <>
                 <Col xs={12} md={6}>
-                  <Form.Group>
-                    <Form.Label>Status Type *</Form.Label>
+                  <FormField
+                    label="Work Authorization Type *"
+                    error={errors.visaTitle?.message}
+                  >
                     <Form.Select
-                      {...register("residentType", {
+                      {...register("visaTitle", {
                         required:
-                          isPR === "yes" ? "Status type is required" : false,
+                          isPR === "no"
+                            ? "Work authorization type is required"
+                            : false,
                       })}
+                      style={inputStyle}
                     >
-                      <option value="">Select Type</option>
-                      <option value="green_card">Green Card</option>
-                      <option value="citizen">Citizen</option>
+                      <option value="">Select Work Authorization</option>
+                      <option value="h1b">H1-B</option>
+                      <option value="l2">L2</option>
+                      <option value="f1_cpt_opt">F1 CPT/OPT</option>
+                      <option value="h4">H4</option>
+                      <option value="other">Other</option>
                     </Form.Select>
-                    {errors.residentType && (
-                      <Form.Text className="text-danger">
-                        {errors.residentType.message}
-                      </Form.Text>
-                    )}
-                  </Form.Group>
+                  </FormField>
                 </Col>
-              )}
 
-              {isPR === "no" && (
-                <>
+                {visaTitle === "other" && (
                   <Col xs={12} md={6}>
-                    <Form.Group>
-                      <Form.Label>Work Authorization Type *</Form.Label>
-                      <Form.Select
-                        {...register("visaTitle", {
+                    <FormField
+                      label="Other Visa Title *"
+                      error={errors.otherTitle?.message}
+                    >
+                      <Form.Control
+                        placeholder="Other Visa Title"
+                        {...register("otherTitle", {
                           required:
-                            isPR === "no"
-                              ? "Work authorization type is required"
+                            visaTitle === "other"
+                              ? "Other visa title is required"
                               : false,
                         })}
-                      >
-                        <option value="">Select Work Authorization</option>
-                        <option value="h1b">H1-B</option>
-                        <option value="l2">L2</option>
-                        <option value="f1_cpt_opt">F1 CPT/OPT</option>
-                        <option value="h4">H4</option>
-                        <option value="other">Other</option>
-                      </Form.Select>
-                      {errors.visaTitle && (
-                        <Form.Text className="text-danger">
-                          {errors.visaTitle.message}
-                        </Form.Text>
-                      )}
-                    </Form.Group>
-                  </Col>
-
-                  {visaTitle === "other" && (
-                    <Col xs={12} md={6}>
-                      <Form.Group>
-                        <Form.Label>Other Visa Title *</Form.Label>
-                        <Form.Control
-                          placeholder="Other Visa Title"
-                          {...register("otherTitle", {
-                            required:
-                              visaTitle === "other"
-                                ? "Other visa title is required"
-                                : false,
-                          })}
-                        />
-                        {errors.otherTitle && (
-                          <Form.Text className="text-danger">
-                            {errors.otherTitle.message}
-                          </Form.Text>
-                        )}
-                      </Form.Group>
-                    </Col>
-                  )}
-
-                  <Col xs={12} md={6}>
-                    <Form.Group>
-                      <Form.Label>Start Date *</Form.Label>
-                      <Form.Control
-                        type="date"
-                        {...register("startDate", {
-                          required:
-                            isPR === "no" ? "Start date is required" : false,
-                        })}
+                        style={inputStyle}
                       />
-                      {errors.startDate && (
-                        <Form.Text className="text-danger">
-                          {errors.startDate.message}
-                        </Form.Text>
-                      )}
-                    </Form.Group>
+                    </FormField>
                   </Col>
+                )}
 
-                  <Col xs={12} md={6}>
-                    <Form.Group>
-                      <Form.Label>End Date *</Form.Label>
-                      <Form.Control
-                        type="date"
-                        {...register("endDate", {
-                          required:
-                            isPR === "no" ? "End date is required" : false,
-                        })}
-                      />
-                      {errors.endDate && (
-                        <Form.Text className="text-danger">
-                          {errors.endDate.message}
-                        </Form.Text>
-                      )}
-                    </Form.Group>
-                  </Col>
+                <Col xs={12} md={6}>
+                  <FormField
+                    label="Start Date *"
+                    error={errors.startDate?.message}
+                  >
+                    <Form.Control
+                      type="date"
+                      {...register("startDate", {
+                        required:
+                          isPR === "no" ? "Start date is required" : false,
+                      })}
+                      style={inputStyle}
+                    />
+                  </FormField>
+                </Col>
 
-                  <Col xs={12}>
-                    <Form.Group>
-                      <Form.Label>Work Authorization Document *</Form.Label>
-                      <Form.Text className="d-block text-muted mb-2">
-                        For F1 CPT/OPT users, please upload OPT Receipt.
-                      </Form.Text>
-                      <Form.Control
-                        type="file"
-                        accept=".pdf,image/*"
-                        {...register("optReceipt", {
-                          validate: (files) => {
-                            if (
-                              isPR === "no" &&
-                              (!files || files.length === 0)
-                            ) {
-                              return "Work authorization document is required";
-                            }
+                <Col xs={12} md={6}>
+                  <FormField label="End Date *" error={errors.endDate?.message}>
+                    <Form.Control
+                      type="date"
+                      {...register("endDate", {
+                        required:
+                          isPR === "no" ? "End date is required" : false,
+                      })}
+                      style={inputStyle}
+                    />
+                  </FormField>
+                </Col>
 
-                            return true;
-                          },
-                        })}
-                      />
-                      {errors.optReceipt && (
-                        <Form.Text className="text-danger">
-                          {errors.optReceipt.message}
-                        </Form.Text>
-                      )}
-                    </Form.Group>
-                  </Col>
-                </>
-              )}
+                <Col xs={12}>
+                  <FormField
+                    label="Work Authorization Document *"
+                    helpText="For F1 CPT/OPT users, please upload OPT Receipt."
+                    error={errors.optReceipt?.message}
+                  >
+                    <Form.Control
+                      type="file"
+                      accept=".pdf,image/*"
+                      {...register("optReceipt", {
+                        validate: (files) => {
+                          if (
+                            isPR === "no" &&
+                            (!files || files.length === 0)
+                          ) {
+                            return "Work authorization document is required";
+                          }
 
-              <Col xs={12}>
-                <Form.Group>
-                  <Form.Label>Driver License</Form.Label>
-                  <Form.Control
-                    type="file"
-                    accept=".pdf,image/*"
-                    {...register("driverLicense")}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
+                          return true;
+                        },
+                      })}
+                      style={fileInputStyle}
+                    />
+                  </FormField>
+                </Col>
+              </>
+            )}
+
+            <Col xs={12}>
+              <FormField label="Driver License">
+                <Form.Control
+                  type="file"
+                  accept=".pdf,image/*"
+                  {...register("driverLicense")}
+                  style={fileInputStyle}
+                />
+              </FormField>
+            </Col>
+          </Row>
+        </SectionCard>
 
         {/* Reference */}
-        <Card className="mb-3">
-          <Card.Body>
-            <Card.Title className="mb-3">Reference</Card.Title>
+        <SectionCard title="Reference">
+          <p
+            className="mb-3"
+            style={{
+              color: "#6b7280",
+              fontSize: "13px",
+              fontWeight: "600",
+              lineHeight: "1.5",
+            }}
+          >
+            Reference is optional. If you provide a reference, first name, last
+            name, and relationship are required.
+          </p>
 
-            <p className="text-muted small mb-3">
-              Reference is optional. If you provide a reference, first name,
-              last name, and relationship are required.
-            </p>
+          <Row className="g-3">
+            <Col xs={12} md={6}>
+              <FormField
+                label="Reference First Name"
+                error={errors.referenceFirstName?.message}
+              >
+                <Form.Control
+                  placeholder="Reference First Name"
+                  {...register("referenceFirstName", {
+                    validate: (value, formValues) => {
+                      const hasAnyReference =
+                        value ||
+                        formValues.referenceLastName ||
+                        formValues.referenceMiddleName ||
+                        formValues.referencePhone ||
+                        formValues.referenceEmail ||
+                        formValues.referenceRelationship;
 
-            <Row className="g-3">
-              <Col xs={12} md={6}>
-                <Form.Group>
-                  <Form.Label>Reference First Name</Form.Label>
-                  <Form.Control
-                    placeholder="Reference First Name"
-                    {...register("referenceFirstName", {
-                      validate: (value, formValues) => {
-                        const hasAnyReference =
-                          value ||
-                          formValues.referenceLastName ||
-                          formValues.referenceMiddleName ||
-                          formValues.referencePhone ||
-                          formValues.referenceEmail ||
-                          formValues.referenceRelationship;
+                      if (hasAnyReference && !value) {
+                        return "First name is required if reference is provided";
+                      }
 
-                        if (hasAnyReference && !value) {
-                          return "First name is required if reference is provided";
-                        }
+                      return true;
+                    },
+                  })}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
 
-                        return true;
-                      },
-                    })}
-                  />
-                  {errors.referenceFirstName && (
-                    <Form.Text className="text-danger">
-                      {errors.referenceFirstName.message}
-                    </Form.Text>
-                  )}
-                </Form.Group>
-              </Col>
+            <Col xs={12} md={6}>
+              <FormField
+                label="Reference Last Name"
+                error={errors.referenceLastName?.message}
+              >
+                <Form.Control
+                  placeholder="Reference Last Name"
+                  {...register("referenceLastName", {
+                    validate: (value, formValues) => {
+                      const hasAnyReference =
+                        formValues.referenceFirstName ||
+                        value ||
+                        formValues.referenceMiddleName ||
+                        formValues.referencePhone ||
+                        formValues.referenceEmail ||
+                        formValues.referenceRelationship;
 
-              <Col xs={12} md={6}>
-                <Form.Group>
-                  <Form.Label>Reference Last Name</Form.Label>
-                  <Form.Control
-                    placeholder="Reference Last Name"
-                    {...register("referenceLastName", {
-                      validate: (value, formValues) => {
-                        const hasAnyReference =
-                          formValues.referenceFirstName ||
-                          value ||
-                          formValues.referenceMiddleName ||
-                          formValues.referencePhone ||
-                          formValues.referenceEmail ||
-                          formValues.referenceRelationship;
+                      if (hasAnyReference && !value) {
+                        return "Last name is required if reference is provided";
+                      }
 
-                        if (hasAnyReference && !value) {
-                          return "Last name is required if reference is provided";
-                        }
+                      return true;
+                    },
+                  })}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
 
-                        return true;
-                      },
-                    })}
-                  />
-                  {errors.referenceLastName && (
-                    <Form.Text className="text-danger">
-                      {errors.referenceLastName.message}
-                    </Form.Text>
-                  )}
-                </Form.Group>
-              </Col>
+            <Col xs={12} md={6}>
+              <FormField label="Reference Middle Name">
+                <Form.Control
+                  placeholder="Reference Middle Name"
+                  {...register("referenceMiddleName")}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
 
-              <Col xs={12} md={6}>
-                <Form.Group>
-                  <Form.Label>Reference Middle Name</Form.Label>
-                  <Form.Control
-                    placeholder="Reference Middle Name"
-                    {...register("referenceMiddleName")}
-                  />
-                </Form.Group>
-              </Col>
+            <Col xs={12} md={6}>
+              <FormField label="Reference Phone">
+                <Form.Control
+                  placeholder="Reference Phone"
+                  {...register("referencePhone")}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
 
-              <Col xs={12} md={6}>
-                <Form.Group>
-                  <Form.Label>Reference Phone</Form.Label>
-                  <Form.Control
-                    placeholder="Reference Phone"
-                    {...register("referencePhone")}
-                  />
-                </Form.Group>
-              </Col>
+            <Col xs={12} md={6}>
+              <FormField label="Reference Email">
+                <Form.Control
+                  placeholder="Reference Email"
+                  {...register("referenceEmail")}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
 
-              <Col xs={12} md={6}>
-                <Form.Group>
-                  <Form.Label>Reference Email</Form.Label>
-                  <Form.Control
-                    placeholder="Reference Email"
-                    {...register("referenceEmail")}
-                  />
-                </Form.Group>
-              </Col>
+            <Col xs={12} md={6}>
+              <FormField
+                label="Reference Relationship"
+                error={errors.referenceRelationship?.message}
+              >
+                <Form.Control
+                  placeholder="Relationship"
+                  {...register("referenceRelationship", {
+                    validate: (value, formValues) => {
+                      const hasAnyReference =
+                        formValues.referenceFirstName ||
+                        formValues.referenceLastName ||
+                        formValues.referenceMiddleName ||
+                        formValues.referencePhone ||
+                        formValues.referenceEmail ||
+                        value;
 
-              <Col xs={12} md={6}>
-                <Form.Group>
-                  <Form.Label>Reference Relationship</Form.Label>
-                  <Form.Control
-                    placeholder="Relationship"
-                    {...register("referenceRelationship", {
-                      validate: (value, formValues) => {
-                        const hasAnyReference =
-                          formValues.referenceFirstName ||
-                          formValues.referenceLastName ||
-                          formValues.referenceMiddleName ||
-                          formValues.referencePhone ||
-                          formValues.referenceEmail ||
-                          value;
+                      if (hasAnyReference && !value) {
+                        return "Relationship is required if reference is provided";
+                      }
 
-                        if (hasAnyReference && !value) {
-                          return "Relationship is required if reference is provided";
-                        }
-
-                        return true;
-                      },
-                    })}
-                  />
-                  {errors.referenceRelationship && (
-                    <Form.Text className="text-danger">
-                      {errors.referenceRelationship.message}
-                    </Form.Text>
-                  )}
-                </Form.Group>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
+                      return true;
+                    },
+                  })}
+                  style={inputStyle}
+                />
+              </FormField>
+            </Col>
+          </Row>
+        </SectionCard>
 
         {/* Emergency Contact */}
-        <Card className="mb-3">
-          <Card.Body>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <Card.Title className="mb-0">Emergency Contact</Card.Title>
+        <SectionCard>
+          <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+            <h2
+              className="mb-0"
+              style={{
+                color: "#1f2937",
+                fontSize: "22px",
+                fontWeight: "900",
+                letterSpacing: "-0.04em",
+              }}
+            >
+              Emergency Contact
+            </h2>
 
-              <Button
-                type="button"
-                size="sm"
-                variant="outline-primary"
-                onClick={() =>
-                  appendEmergencyContact({
-                    firstName: "",
-                    lastName: "",
-                    middleName: "",
-                    phone: "",
-                    email: "",
-                    relationship: "",
-                  })
-                }
-              >
-                Add Contact
-              </Button>
-            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline-primary"
+              onClick={() =>
+                appendEmergencyContact({
+                  firstName: "",
+                  lastName: "",
+                  middleName: "",
+                  phone: "",
+                  email: "",
+                  relationship: "",
+                })
+              }
+              style={outlinePrimaryButtonStyle}
+            >
+              Add Contact
+            </Button>
+          </div>
 
-            {emergencyFields.map((field, index) => (
-              <Card key={field.id} className="mb-3 border">
-                <Card.Body>
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h6 className="mb-0">Emergency Contact {index + 1}</h6>
+          {emergencyFields.map((field, index) => (
+            <Card
+              key={field.id}
+              className="mb-3 border-0"
+              style={{
+                borderRadius: "18px",
+                background: "#f8fafc",
+                boxShadow: "inset 0 0 0 1px #e5e7eb",
+              }}
+            >
+              <Card.Body className="p-3 p-md-4">
+                <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+                  <h6
+                    className="mb-0"
+                    style={{
+                      color: "#1f2937",
+                      fontSize: "15px",
+                      fontWeight: "900",
+                      letterSpacing: "-0.02em",
+                    }}
+                  >
+                    Emergency Contact {index + 1}
+                  </h6>
 
-                    {emergencyFields.length > 1 && (
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline-danger"
-                        onClick={() => removeEmergencyContact(index)}
-                      >
-                        Remove
-                      </Button>
-                    )}
-                  </div>
+                  {emergencyFields.length > 1 && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline-danger"
+                      onClick={() => removeEmergencyContact(index)}
+                      style={outlineDangerButtonStyle}
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </div>
 
-                  <Row className="g-3">
-                    <Col xs={12} md={6}>
-                      <Form.Group>
-                        <Form.Label>First Name *</Form.Label>
-                        <Form.Control
-                          placeholder="Emergency First Name"
-                          {...register(
-                            `emergencyContacts.${index}.firstName`,
-                            {
-                              required: "First name is required",
-                            }
-                          )}
-                        />
-                        {errors.emergencyContacts?.[index]?.firstName && (
-                          <Form.Text className="text-danger">
-                            {
-                              errors.emergencyContacts[index].firstName
-                                .message
-                            }
-                          </Form.Text>
+                <Row className="g-3">
+                  <Col xs={12} md={6}>
+                    <FormField
+                      label="First Name *"
+                      error={
+                        errors.emergencyContacts?.[index]?.firstName?.message
+                      }
+                    >
+                      <Form.Control
+                        placeholder="Emergency First Name"
+                        {...register(
+                          `emergencyContacts.${index}.firstName`,
+                          {
+                            required: "First name is required",
+                          }
                         )}
-                      </Form.Group>
-                    </Col>
+                        style={inputStyle}
+                      />
+                    </FormField>
+                  </Col>
 
-                    <Col xs={12} md={6}>
-                      <Form.Group>
-                        <Form.Label>Last Name *</Form.Label>
-                        <Form.Control
-                          placeholder="Emergency Last Name"
-                          {...register(
-                            `emergencyContacts.${index}.lastName`,
-                            {
-                              required: "Last name is required",
-                            }
-                          )}
-                        />
-                        {errors.emergencyContacts?.[index]?.lastName && (
-                          <Form.Text className="text-danger">
-                            {errors.emergencyContacts[index].lastName.message}
-                          </Form.Text>
+                  <Col xs={12} md={6}>
+                    <FormField
+                      label="Last Name *"
+                      error={
+                        errors.emergencyContacts?.[index]?.lastName?.message
+                      }
+                    >
+                      <Form.Control
+                        placeholder="Emergency Last Name"
+                        {...register(`emergencyContacts.${index}.lastName`, {
+                          required: "Last name is required",
+                        })}
+                        style={inputStyle}
+                      />
+                    </FormField>
+                  </Col>
+
+                  <Col xs={12} md={6}>
+                    <FormField label="Middle Name">
+                      <Form.Control
+                        placeholder="Emergency Middle Name"
+                        {...register(
+                          `emergencyContacts.${index}.middleName`
                         )}
-                      </Form.Group>
-                    </Col>
+                        style={inputStyle}
+                      />
+                    </FormField>
+                  </Col>
 
-                    <Col xs={12} md={6}>
-                      <Form.Group>
-                        <Form.Label>Middle Name</Form.Label>
-                        <Form.Control
-                          placeholder="Emergency Middle Name"
-                          {...register(
-                            `emergencyContacts.${index}.middleName`
-                          )}
-                        />
-                      </Form.Group>
-                    </Col>
+                  <Col xs={12} md={6}>
+                    <FormField label="Phone">
+                      <Form.Control
+                        placeholder="Emergency Phone"
+                        {...register(`emergencyContacts.${index}.phone`)}
+                        style={inputStyle}
+                      />
+                    </FormField>
+                  </Col>
 
-                    <Col xs={12} md={6}>
-                      <Form.Group>
-                        <Form.Label>Phone</Form.Label>
-                        <Form.Control
-                          placeholder="Emergency Phone"
-                          {...register(`emergencyContacts.${index}.phone`)}
-                        />
-                      </Form.Group>
-                    </Col>
+                  <Col xs={12} md={6}>
+                    <FormField label="Email">
+                      <Form.Control
+                        placeholder="Emergency Email"
+                        {...register(`emergencyContacts.${index}.email`)}
+                        style={inputStyle}
+                      />
+                    </FormField>
+                  </Col>
 
-                    <Col xs={12} md={6}>
-                      <Form.Group>
-                        <Form.Label>Email</Form.Label>
-                        <Form.Control
-                          placeholder="Emergency Email"
-                          {...register(`emergencyContacts.${index}.email`)}
-                        />
-                      </Form.Group>
-                    </Col>
-
-                    <Col xs={12} md={6}>
-                      <Form.Group>
-                        <Form.Label>Relationship *</Form.Label>
-                        <Form.Control
-                          placeholder="Relationship"
-                          {...register(
-                            `emergencyContacts.${index}.relationship`,
-                            {
-                              required: "Relationship is required",
-                            }
-                          )}
-                        />
-                        {errors.emergencyContacts?.[index]?.relationship && (
-                          <Form.Text className="text-danger">
-                            {
-                              errors.emergencyContacts[index].relationship
-                                .message
-                            }
-                          </Form.Text>
+                  <Col xs={12} md={6}>
+                    <FormField
+                      label="Relationship *"
+                      error={
+                        errors.emergencyContacts?.[index]?.relationship?.message
+                      }
+                    >
+                      <Form.Control
+                        placeholder="Relationship"
+                        {...register(
+                          `emergencyContacts.${index}.relationship`,
+                          {
+                            required: "Relationship is required",
+                          }
                         )}
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                </Card.Body>
-              </Card>
-            ))}
-          </Card.Body>
-        </Card>
+                        style={inputStyle}
+                      />
+                    </FormField>
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
+          ))}
+        </SectionCard>
 
         {/* Upload Summary */}
-        <Card className="mb-3">
-          <Card.Body>
-            <Card.Title className="mb-3">Selected Upload Summary</Card.Title>
+        <SectionCard title="Selected Upload Summary">
+          <p
+            className="mb-3"
+            style={{
+              color: "#6b7280",
+              fontSize: "13px",
+              fontWeight: "600",
+              lineHeight: "1.5",
+            }}
+          >
+            Please review selected files before submitting your application.
+          </p>
 
-            <p className="text-muted small mb-3">
-              Please review selected files before submitting your application.
-            </p>
+          <Row className="g-3">
+            <SummaryItem
+              label="Profile Picture"
+              fileList={watchedProfilePicture}
+            />
 
-            <Row className="g-3">
-              <SummaryItem
-                label="Profile Picture"
-                fileList={watchedProfilePicture}
-              />
+            <SummaryItem label="Driver License" fileList={watchedDriverLicense} />
 
-              <SummaryItem
-                label="Driver License"
-                fileList={watchedDriverLicense}
-              />
-
-              <SummaryItem
-                label={
-                  visaTitle === "f1_cpt_opt"
-                    ? "OPT Receipt"
-                    : "Work Authorization Document"
-                }
-                fileList={watchedWorkAuthDocument}
-              />
-            </Row>
-          </Card.Body>
-        </Card>
+            <SummaryItem
+              label={
+                visaTitle === "f1_cpt_opt"
+                  ? "OPT Receipt"
+                  : "Work Authorization Document"
+              }
+              fileList={watchedWorkAuthDocument}
+            />
+          </Row>
+        </SectionCard>
 
         <div className="d-flex justify-content-end mb-4">
-          <Button type="submit" variant="primary">
+          <Button type="submit" variant="primary" style={primaryButtonStyle}>
             Submit Application
           </Button>
         </div>
@@ -1159,43 +1143,77 @@ function SummaryItem({ label, fileList }) {
 
   return (
     <Col xs={12} md={4}>
-      <div className="mb-2">
-        <strong>{label}:</strong>
-      </div>
-
-      <div className="mb-2">
-        {file ? file.name : <span className="text-muted">No file selected</span>}
-      </div>
-
-      {file && (
-        <div className="d-flex gap-2">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline-primary"
-            onClick={handlePreview}
-            disabled={!canPreview}
-          >
-            Preview
-          </Button>
-
-          <Button
-            as="a"
-            href={fileUrl}
-            download={file.name}
-            size="sm"
-            variant="outline-secondary"
-          >
-            Download
-          </Button>
+      <div
+        style={{
+          background: "#f8fafc",
+          border: "1px solid #e5e7eb",
+          borderRadius: "16px",
+          padding: "14px",
+          height: "100%",
+        }}
+      >
+        <div
+          className="mb-2"
+          style={{
+            color: "#374151",
+            fontSize: "14px",
+            fontWeight: "900",
+          }}
+        >
+          {label}
         </div>
-      )}
 
-      {file && !canPreview && (
-        <Form.Text className="text-muted">
-          Preview is only available for images and PDF files.
-        </Form.Text>
-      )}
+        <div
+          className="mb-3 text-truncate"
+          style={{
+            color: file ? "#1f2937" : "#9ca3af",
+            fontSize: "13px",
+            fontWeight: "700",
+          }}
+        >
+          {file ? file.name : "No file selected"}
+        </div>
+
+        {file && (
+          <div className="d-flex flex-wrap gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline-primary"
+              onClick={handlePreview}
+              disabled={!canPreview}
+              style={outlinePrimaryButtonStyle}
+            >
+              Preview
+            </Button>
+
+            <Button
+              as="a"
+              href={fileUrl}
+              download={file.name}
+              size="sm"
+              variant="outline-secondary"
+              style={outlineSecondaryButtonStyle}
+            >
+              Download
+            </Button>
+          </div>
+        )}
+
+        {file && !canPreview && (
+          <Form.Text
+            style={{
+              color: "#6b7280",
+              fontSize: "12px",
+              fontWeight: "600",
+              marginTop: "8px",
+              display: "block",
+            }}
+          >
+            Preview is only available for images and PDF files.
+          </Form.Text>
+        )}
+      </div>
     </Col>
   );
 }
@@ -1207,3 +1225,178 @@ function getSelectedFile(fileList) {
 
   return fileList[0] || null;
 }
+
+function PageHeader({ title, subtitle }) {
+  return (
+    <div className="mb-4">
+      <h1
+        className="mb-2"
+        style={{
+          color: "#1f2937",
+          fontSize: "clamp(30px, 4vw, 42px)",
+          fontWeight: "900",
+          letterSpacing: "-0.055em",
+          lineHeight: "1.08",
+        }}
+      >
+        {title}
+      </h1>
+
+      {subtitle && (
+        <p
+          className="mb-0"
+          style={{
+            color: "#6b7280",
+            fontSize: "15px",
+            fontWeight: "600",
+            lineHeight: "1.6",
+          }}
+        >
+          {subtitle}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function SectionCard({ title, children }) {
+  return (
+    <Card
+      className="mb-4 border-0"
+      style={{
+        borderRadius: "20px",
+        boxShadow: "0 10px 24px rgba(15, 23, 42, 0.05)",
+        overflow: "hidden",
+        fontFamily:
+          "Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      }}
+    >
+      <Card.Body className="p-4">
+        {title && (
+          <Card.Title
+            className="mb-4"
+            style={{
+              color: "#1f2937",
+              fontSize: "22px",
+              fontWeight: "900",
+              letterSpacing: "-0.04em",
+            }}
+          >
+            {title}
+          </Card.Title>
+        )}
+
+        {children}
+      </Card.Body>
+    </Card>
+  );
+}
+
+function FormField({ label, helpText, error, children }) {
+  return (
+    <Form.Group>
+      <Form.Label
+        style={{
+          color: "#374151",
+          fontSize: "14px",
+          fontWeight: "800",
+          marginBottom: "8px",
+        }}
+      >
+        {label}
+      </Form.Label>
+
+      {helpText && (
+        <Form.Text
+          className="d-block mb-2"
+          style={{
+            color: "#6b7280",
+            fontSize: "13px",
+            fontWeight: "600",
+            lineHeight: "1.5",
+          }}
+        >
+          {helpText}
+        </Form.Text>
+      )}
+
+      {children}
+
+      {error && (
+        <Form.Text
+          style={{
+            color: "#dc2626",
+            fontSize: "12px",
+            fontWeight: "700",
+            marginTop: "6px",
+            display: "block",
+          }}
+        >
+          {error}
+        </Form.Text>
+      )}
+    </Form.Group>
+  );
+}
+
+const inputStyle = {
+  height: "48px",
+  borderRadius: "14px",
+  border: "1px solid #d8dee8",
+  fontSize: "14px",
+  fontWeight: "500",
+  paddingLeft: "14px",
+  boxShadow: "none",
+};
+
+const fileInputStyle = {
+  borderRadius: "14px",
+  border: "1px solid #d8dee8",
+  fontSize: "14px",
+  fontWeight: "500",
+  padding: "10px 14px",
+  boxShadow: "none",
+};
+
+const primaryButtonStyle = {
+  minHeight: "48px",
+  borderRadius: "999px",
+  border: "none",
+  background: "linear-gradient(135deg, #2563eb, #4f46e5)",
+  fontWeight: "800",
+  fontSize: "14px",
+  padding: "10px 22px",
+  boxShadow: "0 8px 16px rgba(37, 99, 235, 0.18)",
+};
+
+const outlinePrimaryButtonStyle = {
+  borderRadius: "999px",
+  borderColor: "#c7d2fe",
+  color: "#4f46e5",
+  background: "#ffffff",
+  fontSize: "12px",
+  fontWeight: "800",
+  padding: "7px 14px",
+  boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
+};
+
+const outlineSecondaryButtonStyle = {
+  borderRadius: "999px",
+  borderColor: "#d8dee8",
+  color: "#374151",
+  background: "#ffffff",
+  fontSize: "12px",
+  fontWeight: "800",
+  padding: "7px 14px",
+  boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
+};
+
+const outlineDangerButtonStyle = {
+  borderRadius: "999px",
+  borderColor: "#fecaca",
+  color: "#dc2626",
+  background: "#ffffff",
+  fontSize: "12px",
+  fontWeight: "800",
+  padding: "7px 14px",
+};

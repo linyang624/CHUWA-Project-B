@@ -47,14 +47,58 @@ export default function ApplicationTable({ applications = [] }) {
       emptyMessage="No applications found."
       renderRow={(application) => (
         <tr key={getApplicationId(application)}>
-          <td>{application.firstName || "N/A"}</td>
-          <td>{application.lastName || "N/A"}</td>
-          <td>{application.email || "N/A"}</td>
+          <td>
+            <span
+              style={{
+                color: "#1f2937",
+                fontWeight: "800",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {application.firstName || "N/A"}
+            </span>
+          </td>
+
+          <td>
+            <span
+              style={{
+                color: "#1f2937",
+                fontWeight: "800",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {application.lastName || "N/A"}
+            </span>
+          </td>
+
+          <td>
+            <span
+              style={{
+                color: "#374151",
+                fontWeight: "600",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {application.email || "N/A"}
+            </span>
+          </td>
+
           <td>
             <Button
-              variant="link"
-              className="p-0"
+              variant="outline-primary"
+              size="sm"
               onClick={() => handleViewApplication(application)}
+              style={{
+                borderRadius: "999px",
+                borderColor: "#c7d2fe",
+                color: "#4f46e5",
+                background: "#ffffff",
+                fontSize: "12px",
+                fontWeight: "800",
+                padding: "7px 14px",
+                boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
+                whiteSpace: "nowrap",
+              }}
             >
               View Application
             </Button>

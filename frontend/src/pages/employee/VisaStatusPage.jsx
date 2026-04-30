@@ -252,7 +252,21 @@ export default function VisaStatusPage() {
   if (!data.showVisaStatus) {
     return (
       <Layout>
-        <Alert variant="secondary">{data.message}</Alert>
+        <Alert
+          variant="secondary"
+          style={{
+            borderRadius: "16px",
+            border: "1px solid #e5e7eb",
+            background: "#ffffff",
+            color: "#374151",
+            fontSize: "14px",
+            fontWeight: "700",
+            padding: "16px 18px",
+            boxShadow: "0 10px 24px rgba(15, 23, 42, 0.05)",
+          }}
+        >
+          {data.message}
+        </Alert>
       </Layout>
     );
   }
@@ -266,190 +280,457 @@ export default function VisaStatusPage() {
 
   return (
     <Layout>
-      <h1 className="mb-4">Visa Status</h1>
+      <PageHeader title="Visa Status" />
 
       {/* Current Action */}
-      <Card className="mb-3">
-        <Card.Body>
-          <Card.Title>Current Action</Card.Title>
-
-          <p className="mb-2">
-            <strong>Current Step:</strong>{" "}
-            {isCompleted ? "Completed" : data.currentDocumentName}
-          </p>
-
-          <Alert
-            variant={
-              isCompleted
-                ? "success"
-                : isCurrentDocumentRejected
-                ? "danger"
-                : isCurrentDocumentPending
-                ? "warning"
-                : "primary"
-            }
-            className="mb-0"
+      <SectionCard title="Current Action">
+        <div
+          className="mb-3"
+          style={{
+            background: "#f8fafc",
+            border: "1px solid #e5e7eb",
+            borderRadius: "16px",
+            padding: "14px 16px",
+          }}
+        >
+          <div
+            style={{
+              color: "#6b7280",
+              fontSize: "12px",
+              fontWeight: "900",
+              textTransform: "uppercase",
+              letterSpacing: "0.04em",
+              marginBottom: "5px",
+            }}
           >
-            {isCurrentDocumentRejected ? (
-              <>
-                <strong>HR Feedback:</strong> {getCurrentActionMessage()}
-              </>
-            ) : (
-              getCurrentActionMessage()
-            )}
-          </Alert>
-        </Card.Body>
-      </Card>
+            Current Step
+          </div>
+
+          <div
+            style={{
+              color: "#1f2937",
+              fontSize: "16px",
+              fontWeight: "900",
+              lineHeight: "1.4",
+            }}
+          >
+            {isCompleted ? "Completed" : data.currentDocumentName}
+          </div>
+        </div>
+
+        <Alert
+          variant={
+            isCompleted
+              ? "success"
+              : isCurrentDocumentRejected
+              ? "danger"
+              : isCurrentDocumentPending
+              ? "warning"
+              : "primary"
+          }
+          className="mb-0"
+          style={{
+            borderRadius: "16px",
+            border: isCompleted
+              ? "1px solid #bbf7d0"
+              : isCurrentDocumentRejected
+              ? "1px solid #fecaca"
+              : isCurrentDocumentPending
+              ? "1px solid #fde68a"
+              : "1px solid #c7d2fe",
+            background: isCompleted
+              ? "#ecfdf3"
+              : isCurrentDocumentRejected
+              ? "#fef2f2"
+              : isCurrentDocumentPending
+              ? "#fffbeb"
+              : "#eef2ff",
+            color: isCompleted
+              ? "#166534"
+              : isCurrentDocumentRejected
+              ? "#991b1b"
+              : isCurrentDocumentPending
+              ? "#92400e"
+              : "#3730a3",
+            fontSize: "14px",
+            fontWeight: "700",
+            lineHeight: "1.6",
+            padding: "15px 16px",
+          }}
+        >
+          {isCurrentDocumentRejected ? (
+            <>
+              <strong>HR Feedback:</strong> {getCurrentActionMessage()}
+            </>
+          ) : (
+            getCurrentActionMessage()
+          )}
+        </Alert>
+      </SectionCard>
 
       {/* Visa Progress Tracker */}
-      <Card className="mb-3">
-        <Card.Body>
-          <Card.Title>Visa Progress Tracker</Card.Title>
+      <SectionCard title="Visa Progress Tracker">
+        <Row className="g-3">
+          {VISA_STEPS.map((step, index) => {
+            const stepStatus = getStepStatus(step.key, index);
+            const document = getDocumentByStep(step.key);
 
-          <Row className="g-3">
-            {VISA_STEPS.map((step, index) => {
-              const stepStatus = getStepStatus(step.key, index);
-              const document = getDocumentByStep(step.key);
+            return (
+              <Col xs={12} md={6} lg={3} key={step.key}>
+                <Card
+                  className="h-100 border-0"
+                  style={{
+                    borderRadius: "18px",
+                    background: "#f8fafc",
+                    boxShadow: "inset 0 0 0 1px #e5e7eb",
+                    overflow: "hidden",
+                  }}
+                >
+                  <Card.Body className="p-3">
+                    <div className="d-flex justify-content-between align-items-start gap-2 mb-2">
+                      <h6
+                        className="mb-0"
+                        style={{
+                          color: "#1f2937",
+                          fontSize: "15px",
+                          fontWeight: "900",
+                          letterSpacing: "-0.02em",
+                          lineHeight: "1.35",
+                        }}
+                      >
+                        {step.label}
+                      </h6>
 
-              return (
-                <Col xs={12} md={6} lg={3} key={step.key}>
-                  <Card className="h-100">
-                    <Card.Body>
-                      <div className="d-flex justify-content-between align-items-start gap-2 mb-2">
-                        <h6 className="mb-0">{step.label}</h6>
-                        <StepBadge status={stepStatus} />
-                      </div>
+                      <StepBadge status={stepStatus} />
+                    </div>
 
-                      <p className="text-muted small mb-3">
-                        {step.description}
-                      </p>
+                    <p
+                      className="mb-3"
+                      style={{
+                        color: "#6b7280",
+                        fontSize: "13px",
+                        fontWeight: "600",
+                        lineHeight: "1.5",
+                        minHeight: "38px",
+                      }}
+                    >
+                      {step.description}
+                    </p>
 
-                      <DocumentItem title={step.label} document={document} />
-                    </Card.Body>
-                  </Card>
-                </Col>
-              );
-            })}
-          </Row>
-        </Card.Body>
-      </Card>
+                    <DocumentItem title={step.label} document={document} />
+                  </Card.Body>
+                </Card>
+              </Col>
+            );
+          })}
+        </Row>
+      </SectionCard>
 
       {/* I-983 Templates only show during I-983 step */}
       {isI983Step && (
-        <Card className="mb-3">
-          <Card.Body>
-            <Card.Title>I-983 Templates</Card.Title>
+        <SectionCard title="I-983 Templates">
+          <p
+            className="mb-3"
+            style={{
+              color: "#6b7280",
+              fontSize: "14px",
+              fontWeight: "600",
+              lineHeight: "1.5",
+            }}
+          >
+            Please download and fill out the I-983 form.
+          </p>
 
-            <p className="text-muted mb-3">
-              Please download and fill out the I-983 form.
-            </p>
+          <Row className="g-3">
+            <Col xs={12} md={6}>
+              <TemplateCard
+                title="Empty Template"
+                description="Use this blank template to complete your I-983 form."
+                href={I983_EMPTY_TEMPLATE_URL}
+                buttonText="Download Empty Template"
+              />
+            </Col>
 
-            <Row className="g-3">
-              <Col xs={12} md={6}>
-                <Card className="h-100">
-                  <Card.Body>
-                    <h6>Empty Template</h6>
-                    <p className="text-muted small mb-3">
-                      Use this blank template to complete your I-983 form.
-                    </p>
-
-                    <Button
-                      as="a"
-                      href={I983_EMPTY_TEMPLATE_URL}
-                      target="_blank"
-                      rel="noreferrer"
-                      variant="outline-primary"
-                      size="sm"
-                    >
-                      Download Empty Template
-                    </Button>
-                  </Card.Body>
-                </Card>
-              </Col>
-
-              <Col xs={12} md={6}>
-                <Card className="h-100">
-                  <Card.Body>
-                    <h6>Sample Template</h6>
-                    <p className="text-muted small mb-3">
-                      Use this sample as a reference when filling out your form.
-                    </p>
-
-                    <Button
-                      as="a"
-                      href={I983_SAMPLE_TEMPLATE_URL}
-                      target="_blank"
-                      rel="noreferrer"
-                      variant="outline-primary"
-                      size="sm"
-                    >
-                      Download Sample Template
-                    </Button>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
+            <Col xs={12} md={6}>
+              <TemplateCard
+                title="Sample Template"
+                description="Use this sample as a reference when filling out your form."
+                href={I983_SAMPLE_TEMPLATE_URL}
+                buttonText="Download Sample Template"
+              />
+            </Col>
+          </Row>
+        </SectionCard>
       )}
 
       {/* Upload Current Document */}
       {!isCompleted && !isCurrentDocumentPending && (
-        <Card className="mb-3">
-          <Card.Body>
-            <Card.Title>Upload Current Document</Card.Title>
+        <SectionCard title="Upload Current Document">
+          {currentDocument && currentDocumentStatus !== "rejected" && (
+            <Alert
+              variant="warning"
+              style={{
+                borderRadius: "16px",
+                border: "1px solid #fde68a",
+                background: "#fffbeb",
+                color: "#92400e",
+                fontSize: "14px",
+                fontWeight: "600",
+                lineHeight: "1.6",
+                padding: "15px 16px",
+              }}
+            >
+              You already uploaded a file for this step. If you upload a new
+              file, the latest file should replace the previous submitted file.
+            </Alert>
+          )}
 
-            {currentDocument && currentDocumentStatus !== "rejected" && (
-              <Alert variant="warning">
-                You already uploaded a file for this step. If you upload a new
-                file, the latest file should replace the previous submitted file.
-              </Alert>
-            )}
+          <Form.Group className="mb-3">
+            <Form.Label
+              style={{
+                color: "#374151",
+                fontSize: "14px",
+                fontWeight: "800",
+                marginBottom: "8px",
+              }}
+            >
+              {isI983Step
+                ? "Upload filled out I-983 form"
+                : `Upload ${data.currentDocumentName}`}
+            </Form.Label>
 
-            <Form.Group className="mb-3">
-              <Form.Label>
-                {isI983Step
-                  ? "Upload filled out I-983 form"
-                  : `Upload ${data.currentDocumentName}`}
-              </Form.Label>
+            <Form.Control
+              type="file"
+              accept=".pdf,image/*"
+              onChange={(event) => setFile(event.target.files[0])}
+              style={fileInputStyle}
+            />
+          </Form.Group>
 
-              <Form.Control
-                type="file"
-                accept=".pdf,image/*"
-                onChange={(event) => setFile(event.target.files[0])}
-              />
-            </Form.Group>
-
-            <Button type="button" variant="primary" onClick={handleUpload}>
-              Upload
-            </Button>
-          </Card.Body>
-        </Card>
+          <Button type="button" variant="primary" onClick={handleUpload} style={primaryButtonStyle}>
+            Upload
+          </Button>
+        </SectionCard>
       )}
     </Layout>
   );
 }
 
+function PageHeader({ title }) {
+  return (
+    <div className="mb-4">
+      <h1
+        className="mb-0"
+        style={{
+          color: "#1f2937",
+          fontSize: "clamp(30px, 4vw, 42px)",
+          fontWeight: "900",
+          letterSpacing: "-0.055em",
+          lineHeight: "1.08",
+        }}
+      >
+        {title}
+      </h1>
+    </div>
+  );
+}
+
+function SectionCard({ title, children }) {
+  return (
+    <Card
+      className="mb-4 border-0"
+      style={{
+        borderRadius: "20px",
+        boxShadow: "0 10px 24px rgba(15, 23, 42, 0.05)",
+        overflow: "hidden",
+        fontFamily:
+          "Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      }}
+    >
+      <Card.Body className="p-4">
+        <Card.Title
+          className="mb-4"
+          style={{
+            color: "#1f2937",
+            fontSize: "22px",
+            fontWeight: "900",
+            letterSpacing: "-0.04em",
+          }}
+        >
+          {title}
+        </Card.Title>
+
+        {children}
+      </Card.Body>
+    </Card>
+  );
+}
+
+function TemplateCard({ title, description, href, buttonText }) {
+  return (
+    <Card
+      className="h-100 border-0"
+      style={{
+        borderRadius: "18px",
+        background: "#f8fafc",
+        boxShadow: "inset 0 0 0 1px #e5e7eb",
+      }}
+    >
+      <Card.Body className="p-3 p-md-4">
+        <h6
+          className="mb-2"
+          style={{
+            color: "#1f2937",
+            fontSize: "15px",
+            fontWeight: "900",
+            letterSpacing: "-0.02em",
+          }}
+        >
+          {title}
+        </h6>
+
+        <p
+          className="mb-3"
+          style={{
+            color: "#6b7280",
+            fontSize: "13px",
+            fontWeight: "600",
+            lineHeight: "1.5",
+          }}
+        >
+          {description}
+        </p>
+
+        <Button
+          as="a"
+          href={href}
+          target="_blank"
+          rel="noreferrer"
+          variant="outline-primary"
+          size="sm"
+          style={outlinePrimaryButtonStyle}
+        >
+          {buttonText}
+        </Button>
+      </Card.Body>
+    </Card>
+  );
+}
+
 function StepBadge({ status }) {
   if (status === "completed") {
-    return <Badge bg="success">Completed</Badge>;
+    return (
+      <Badge
+        bg="success"
+        pill
+        style={{
+          padding: "7px 12px",
+          fontSize: "12px",
+          fontWeight: "800",
+          borderRadius: "999px",
+        }}
+      >
+        Completed
+      </Badge>
+    );
   }
 
   if (status === "pending_review") {
     return (
-      <Badge bg="warning" text="dark">
+      <Badge
+        bg="warning"
+        text="dark"
+        pill
+        style={{
+          padding: "7px 12px",
+          fontSize: "12px",
+          fontWeight: "800",
+          borderRadius: "999px",
+        }}
+      >
         Pending
       </Badge>
     );
   }
 
   if (status === "rejected") {
-    return <Badge bg="danger">Rejected</Badge>;
+    return (
+      <Badge
+        bg="danger"
+        pill
+        style={{
+          padding: "7px 12px",
+          fontSize: "12px",
+          fontWeight: "800",
+          borderRadius: "999px",
+        }}
+      >
+        Rejected
+      </Badge>
+    );
   }
 
   if (status === "current") {
-    return <Badge bg="primary">Current</Badge>;
+    return (
+      <Badge
+        bg="primary"
+        pill
+        style={{
+          padding: "7px 12px",
+          fontSize: "12px",
+          fontWeight: "800",
+          borderRadius: "999px",
+        }}
+      >
+        Current
+      </Badge>
+    );
   }
 
-  return <Badge bg="secondary">Not Started</Badge>;
+  return (
+    <Badge
+      bg="secondary"
+      pill
+      style={{
+        padding: "7px 12px",
+        fontSize: "12px",
+        fontWeight: "800",
+        borderRadius: "999px",
+      }}
+    >
+      Not Started
+    </Badge>
+  );
 }
+
+const fileInputStyle = {
+  borderRadius: "14px",
+  border: "1px solid #d8dee8",
+  fontSize: "14px",
+  fontWeight: "500",
+  padding: "10px 14px",
+  boxShadow: "none",
+};
+
+const primaryButtonStyle = {
+  minHeight: "46px",
+  borderRadius: "999px",
+  border: "none",
+  background: "linear-gradient(135deg, #2563eb, #4f46e5)",
+  fontWeight: "800",
+  fontSize: "14px",
+  padding: "9px 22px",
+  boxShadow: "0 8px 16px rgba(37, 99, 235, 0.18)",
+};
+
+const outlinePrimaryButtonStyle = {
+  borderRadius: "999px",
+  borderColor: "#c7d2fe",
+  color: "#4f46e5",
+  background: "#ffffff",
+  fontSize: "12px",
+  fontWeight: "800",
+  padding: "7px 14px",
+  boxShadow: "0 4px 12px rgba(15, 23, 42, 0.06)",
+  whiteSpace: "nowrap",
+};
