@@ -55,12 +55,15 @@ export default function OnboardingApplicationPage() {
   const isPR = watch("isPermanentResidentOrCitizen");
   const visaTitle = watch("visaTitle");
 
+  const watchedProfilePicture = watch("profilePicture");
+  const watchedDriverLicense = watch("driverLicense");
+  const watchedWorkAuthDocument = watch("optReceipt");
+
   /*
-    Fill the onboarding form with old rejected application data.
+    Fill the form again when a rejected application is returned.
 
     react-hook-form defaultValues only work on the first render.
-    After backend returns the rejected application, we need reset()
-    to put the old data back into the form.
+    For rejected applications, reset() is needed to put old data back.
   */
   const fillFormWithApplication = (app) => {
     reset({
@@ -121,10 +124,6 @@ export default function OnboardingApplicationPage() {
             ],
     });
 
-    /*
-      If the user already uploaded a profile picture before rejection,
-      show that uploaded picture. Otherwise show default avatar.
-    */
     if (app.profilePicture?.fileName) {
       setProfilePreview(
         `http://localhost:5001/uploads/${app.profilePicture.fileName}`
@@ -148,12 +147,10 @@ export default function OnboardingApplicationPage() {
           dispatch(updateOnboardingStatus(res.status || app.status));
           setApplication(app);
 
-          // Rejected users should see their previous application data.
           if (app.status === "rejected") {
             fillFormWithApplication(app);
           }
 
-          // If the application is not rejected but still has picture data, show it.
           if (app.status !== "rejected" && app.profilePicture?.fileName) {
             setProfilePreview(
               `http://localhost:5001/uploads/${app.profilePicture.fileName}`
@@ -168,7 +165,9 @@ export default function OnboardingApplicationPage() {
     fetchStatus();
   }, [dispatch, reset, user?.email]);
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
 
   const onboardingStatus = user.onboardingStatus || "never_submitted";
 
@@ -188,6 +187,11 @@ export default function OnboardingApplicationPage() {
     );
   }
 
+  /*
+    Reference is optional.
+    But if user fills any reference field, first name, last name,
+    and relationship become required.
+  */
   const hasReference = (data) => {
     return (
       data.referenceFirstName ||
@@ -197,6 +201,20 @@ export default function OnboardingApplicationPage() {
       data.referenceEmail ||
       data.referenceRelationship
     );
+  };
+
+  /*
+    Update profile picture preview before final submit.
+  */
+  const handleProfilePictureChange = (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      setProfilePreview(DEFAULT_AVATAR_URL);
+      return;
+    }
+
+    setProfilePreview(URL.createObjectURL(file));
   };
 
   const onSubmit = async (data) => {
@@ -211,10 +229,12 @@ export default function OnboardingApplicationPage() {
     formData.append("ssn", data.ssn);
     formData.append("dateOfBirth", data.dateOfBirth);
     formData.append("gender", data.gender);
+
     formData.append(
       "isPermanentResidentOrCitizen",
       data.isPermanentResidentOrCitizen === "yes"
     );
+
     formData.append("residentType", data.residentType || "");
 
     formData.append(
@@ -301,35 +321,33 @@ export default function OnboardingApplicationPage() {
       )}
 
       <Form onSubmit={handleSubmit(onSubmit)}>
-        {/* Name */}
+        {/* Basic Profile */}
         <Card className="mb-3">
           <Card.Body>
-            <Card.Title className="mb-3">Name</Card.Title>
+            <Card.Title className="mb-3">Basic Profile</Card.Title>
+
+            <div className="d-flex align-items-center gap-3 mb-4">
+              <img
+                src={profilePreview}
+                alt="Current profile preview"
+                style={{
+                  width: "96px",
+                  height: "96px",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  border: "1px solid #ddd",
+                }}
+              />
+
+              <div>
+                <h5 className="mb-1">Current Profile Picture</h5>
+                <p className="text-muted mb-0">
+                  This image will be used as your employee profile picture.
+                </p>
+              </div>
+            </div>
 
             <Row className="g-3">
-              <Col xs={12}>
-                <div className="d-flex align-items-center gap-3 mb-3">
-                  <img
-                    src={profilePreview}
-                    alt="Profile preview"
-                    style={{
-                      width: "96px",
-                      height: "96px",
-                      borderRadius: "50%",
-                      objectFit: "cover",
-                      border: "1px solid #ddd",
-                    }}
-                  />
-
-                  <div>
-                    <div className="fw-semibold">Profile Picture</div>
-                    <div className="text-muted small">
-                      Upload a profile picture for your employee profile.
-                    </div>
-                  </div>
-                </div>
-              </Col>
-
               <Col xs={12} md={6}>
                 <Form.Group>
                   <Form.Label>First Name *</Form.Label>
@@ -391,15 +409,7 @@ export default function OnboardingApplicationPage() {
                     type="file"
                     accept="image/*"
                     {...register("profilePicture", {
-                      onChange: (event) => {
-                        const file = event.target.files?.[0];
-
-                        if (file) {
-                          setProfilePreview(URL.createObjectURL(file));
-                        } else {
-                          setProfilePreview(DEFAULT_AVATAR_URL);
-                        }
-                      },
+                      onChange: handleProfilePictureChange,
                     })}
                   />
                 </Form.Group>
@@ -538,10 +548,10 @@ export default function OnboardingApplicationPage() {
           </Card.Body>
         </Card>
 
-        {/* Personal Information */}
+        {/* Personal Details */}
         <Card className="mb-3">
           <Card.Body>
-            <Card.Title className="mb-3">Personal Information</Card.Title>
+            <Card.Title className="mb-3">Personal Details</Card.Title>
 
             <Row className="g-3">
               <Col xs={12} md={4}>
@@ -635,12 +645,22 @@ export default function OnboardingApplicationPage() {
               {isPR === "yes" && (
                 <Col xs={12} md={6}>
                   <Form.Group>
-                    <Form.Label>Status Type</Form.Label>
-                    <Form.Select {...register("residentType")}>
+                    <Form.Label>Status Type *</Form.Label>
+                    <Form.Select
+                      {...register("residentType", {
+                        required:
+                          isPR === "yes" ? "Status type is required" : false,
+                      })}
+                    >
                       <option value="">Select Type</option>
                       <option value="green_card">Green Card</option>
                       <option value="citizen">Citizen</option>
                     </Form.Select>
+                    {errors.residentType && (
+                      <Form.Text className="text-danger">
+                        {errors.residentType.message}
+                      </Form.Text>
+                    )}
                   </Form.Group>
                 </Col>
               )}
@@ -649,8 +669,15 @@ export default function OnboardingApplicationPage() {
                 <>
                   <Col xs={12} md={6}>
                     <Form.Group>
-                      <Form.Label>Work Authorization Type</Form.Label>
-                      <Form.Select {...register("visaTitle")}>
+                      <Form.Label>Work Authorization Type *</Form.Label>
+                      <Form.Select
+                        {...register("visaTitle", {
+                          required:
+                            isPR === "no"
+                              ? "Work authorization type is required"
+                              : false,
+                        })}
+                      >
                         <option value="">Select Work Authorization</option>
                         <option value="h1b">H1-B</option>
                         <option value="l2">L2</option>
@@ -658,51 +685,101 @@ export default function OnboardingApplicationPage() {
                         <option value="h4">H4</option>
                         <option value="other">Other</option>
                       </Form.Select>
+                      {errors.visaTitle && (
+                        <Form.Text className="text-danger">
+                          {errors.visaTitle.message}
+                        </Form.Text>
+                      )}
                     </Form.Group>
                   </Col>
 
                   {visaTitle === "other" && (
                     <Col xs={12} md={6}>
                       <Form.Group>
-                        <Form.Label>Other Visa Title</Form.Label>
+                        <Form.Label>Other Visa Title *</Form.Label>
                         <Form.Control
                           placeholder="Other Visa Title"
-                          {...register("otherTitle")}
+                          {...register("otherTitle", {
+                            required:
+                              visaTitle === "other"
+                                ? "Other visa title is required"
+                                : false,
+                          })}
                         />
+                        {errors.otherTitle && (
+                          <Form.Text className="text-danger">
+                            {errors.otherTitle.message}
+                          </Form.Text>
+                        )}
                       </Form.Group>
                     </Col>
                   )}
 
                   <Col xs={12} md={6}>
                     <Form.Group>
-                      <Form.Label>Start Date</Form.Label>
-                      <Form.Control type="date" {...register("startDate")} />
+                      <Form.Label>Start Date *</Form.Label>
+                      <Form.Control
+                        type="date"
+                        {...register("startDate", {
+                          required:
+                            isPR === "no" ? "Start date is required" : false,
+                        })}
+                      />
+                      {errors.startDate && (
+                        <Form.Text className="text-danger">
+                          {errors.startDate.message}
+                        </Form.Text>
+                      )}
                     </Form.Group>
                   </Col>
 
                   <Col xs={12} md={6}>
                     <Form.Group>
-                      <Form.Label>End Date</Form.Label>
-                      <Form.Control type="date" {...register("endDate")} />
+                      <Form.Label>End Date *</Form.Label>
+                      <Form.Control
+                        type="date"
+                        {...register("endDate", {
+                          required:
+                            isPR === "no" ? "End date is required" : false,
+                        })}
+                      />
+                      {errors.endDate && (
+                        <Form.Text className="text-danger">
+                          {errors.endDate.message}
+                        </Form.Text>
+                      )}
                     </Form.Group>
                   </Col>
 
-                  {visaTitle && (
-                    <Col xs={12}>
-                      <Form.Group>
-                        <Form.Label>
-                          {visaTitle === "f1_cpt_opt"
-                            ? "OPT Receipt"
-                            : "Work Authorization Document"}
-                        </Form.Label>
-                        <Form.Control
-                          type="file"
-                          accept=".pdf,image/*"
-                          {...register("optReceipt")}
-                        />
-                      </Form.Group>
-                    </Col>
-                  )}
+                  <Col xs={12}>
+                    <Form.Group>
+                      <Form.Label>Work Authorization Document *</Form.Label>
+                      <Form.Text className="d-block text-muted mb-2">
+                        For F1 CPT/OPT users, please upload OPT Receipt.
+                      </Form.Text>
+                      <Form.Control
+                        type="file"
+                        accept=".pdf,image/*"
+                        {...register("optReceipt", {
+                          validate: (files) => {
+                            if (
+                              isPR === "no" &&
+                              (!files || files.length === 0)
+                            ) {
+                              return "Work authorization document is required";
+                            }
+
+                            return true;
+                          },
+                        })}
+                      />
+                      {errors.optReceipt && (
+                        <Form.Text className="text-danger">
+                          {errors.optReceipt.message}
+                        </Form.Text>
+                      )}
+                    </Form.Group>
+                  </Col>
                 </>
               )}
 
@@ -1005,6 +1082,38 @@ export default function OnboardingApplicationPage() {
           </Card.Body>
         </Card>
 
+        {/* Upload Summary */}
+        <Card className="mb-3">
+          <Card.Body>
+            <Card.Title className="mb-3">Selected Upload Summary</Card.Title>
+
+            <p className="text-muted small mb-3">
+              Please review selected files before submitting your application.
+            </p>
+
+            <Row className="g-3">
+              <SummaryItem
+                label="Profile Picture"
+                fileList={watchedProfilePicture}
+              />
+
+              <SummaryItem
+                label="Driver License"
+                fileList={watchedDriverLicense}
+              />
+
+              <SummaryItem
+                label={
+                  visaTitle === "f1_cpt_opt"
+                    ? "OPT Receipt"
+                    : "Work Authorization Document"
+                }
+                fileList={watchedWorkAuthDocument}
+              />
+            </Row>
+          </Card.Body>
+        </Card>
+
         <div className="d-flex justify-content-end mb-4">
           <Button type="submit" variant="primary">
             Submit Application
@@ -1013,4 +1122,88 @@ export default function OnboardingApplicationPage() {
       </Form>
     </Layout>
   );
+}
+
+function SummaryItem({ label, fileList }) {
+  const file = getSelectedFile(fileList);
+  const [fileUrl, setFileUrl] = useState("");
+
+  /*
+    Create a temporary browser URL for the selected local file.
+    This lets the employee preview and download before final submit.
+  */
+  useEffect(() => {
+    if (!file) {
+      setFileUrl("");
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+    setFileUrl(url);
+
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [file]);
+
+  const canPreview =
+    file && (file.type.startsWith("image/") || file.type === "application/pdf");
+
+  const handlePreview = () => {
+    if (!fileUrl || !canPreview) {
+      return;
+    }
+
+    window.open(fileUrl, "_blank", "noopener,noreferrer");
+  };
+
+  return (
+    <Col xs={12} md={4}>
+      <div className="mb-2">
+        <strong>{label}:</strong>
+      </div>
+
+      <div className="mb-2">
+        {file ? file.name : <span className="text-muted">No file selected</span>}
+      </div>
+
+      {file && (
+        <div className="d-flex gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline-primary"
+            onClick={handlePreview}
+            disabled={!canPreview}
+          >
+            Preview
+          </Button>
+
+          <Button
+            as="a"
+            href={fileUrl}
+            download={file.name}
+            size="sm"
+            variant="outline-secondary"
+          >
+            Download
+          </Button>
+        </div>
+      )}
+
+      {file && !canPreview && (
+        <Form.Text className="text-muted">
+          Preview is only available for images and PDF files.
+        </Form.Text>
+      )}
+    </Col>
+  );
+}
+
+function getSelectedFile(fileList) {
+  if (!fileList || fileList.length === 0) {
+    return null;
+  }
+
+  return fileList[0] || null;
 }

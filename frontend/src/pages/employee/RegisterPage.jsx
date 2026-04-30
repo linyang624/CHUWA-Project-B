@@ -19,6 +19,14 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  /*
+    Verify the registration token when the page opens.
+
+    Possible invalid cases:
+    - token does not exist
+    - token expired
+    - token already used
+  */
   useEffect(() => {
     const checkToken = async () => {
       try {
@@ -34,6 +42,9 @@ export default function RegisterPage() {
     checkToken();
   }, [token]);
 
+  /*
+    Register employee account using the valid token.
+  */
   const handleRegister = async (event) => {
     event.preventDefault();
     setError("");
@@ -55,6 +66,33 @@ export default function RegisterPage() {
     }
   };
 
+  /*
+    Decide what helper text to show when token verification fails.
+  */
+  const getTokenErrorHelpText = () => {
+    const lowerError = error.toLowerCase();
+
+    if (lowerError.includes("already used")) {
+      return "This registration link has already been used. Please go to the login page and sign in with your account.";
+    }
+
+    if (lowerError.includes("expired")) {
+      return "This registration link has expired. Please contact HR to request a new registration link.";
+    }
+
+    return "This registration link is invalid. Please contact HR to request a new registration link.";
+  };
+
+  const shouldShowLoginButton = () => {
+    const lowerError = error.toLowerCase();
+
+    return (
+      lowerError.includes("already used") ||
+      lowerError.includes("expired") ||
+      lowerError.includes("invalid")
+    );
+  };
+
   if (loading) {
     return (
       <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light px-3">
@@ -67,16 +105,31 @@ export default function RegisterPage() {
     );
   }
 
+  /*
+    Token verification failed before we got an invited email.
+    This means the user cannot register with this link.
+  */
   if (error && !email) {
     return (
       <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light px-3">
-        <Card className="w-100 shadow-sm" style={{ maxWidth: "520px" }}>
+        <Card className="w-100 shadow-sm" style={{ maxWidth: "560px" }}>
           <Card.Body className="p-4">
             <h1 className="h3 mb-3">Registration Page</h1>
 
-            <Alert variant="danger" className="mb-0">
-              {error}
+            <Alert variant="danger" className="mb-3">
+              {getTokenErrorHelpText()}
             </Alert>
+
+            {shouldShowLoginButton() && (
+              <Button
+                type="button"
+                variant="primary"
+                className="w-100"
+                onClick={() => navigate("/login")}
+              >
+                Go to Login
+              </Button>
+            )}
           </Card.Body>
         </Card>
       </div>
